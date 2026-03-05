@@ -246,6 +246,21 @@ install_snap_apps() {
   echo "Apps Snap instaladas."
 }
 
+install_opencode() {
+  if ! ask_yes_no "¿Instalar OpenCode (AI coding agent)?" "Y"; then
+    return
+  fi
+
+  if command -v opencode >/dev/null 2>&1; then
+    echo "OpenCode ya está instalado."
+    return
+  fi
+
+  echo "Instalando OpenCode..."
+  curl -fsSL https://opencode.ai/install | bash
+  echo "OpenCode instalado. Ejecutá 'opencode' en tu proyecto para comenzar."
+}
+
 setup_git_profile() {
   local source_gitconfig="$ROOT_DIR/dotfiles/git/.gitconfig"
   local target_gitconfig="$HOME/.gitconfig"
@@ -324,6 +339,7 @@ main() {
   install_slack
   install_zoom
   install_snap_apps
+  install_opencode
   setup_git_profile
   setup_dualboot_time_sync
   setup_corectrl
