@@ -49,7 +49,7 @@ install_zsh_stack() {
   fi
 
   sudo apt update
-  sudo apt install -y zsh git curl wget unzip fonts-powerline
+  sudo apt install -y zsh git curl wget unzip
 
   if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -72,6 +72,24 @@ install_zsh_stack() {
   fi
 }
 
+install_meslo_nerd_font() {
+  if ! ask_yes_no "¿Instalar fuentes MesloLGS NF recomendadas para Powerlevel10k?" "Y"; then
+    return
+  fi
+
+  local font_dir="$HOME/.local/share/fonts"
+  mkdir -p "$font_dir"
+
+  wget -q -O "$font_dir/MesloLGS NF Regular.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf"
+  wget -q -O "$font_dir/MesloLGS NF Bold.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf"
+  wget -q -O "$font_dir/MesloLGS NF Italic.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf"
+  wget -q -O "$font_dir/MesloLGS NF Bold Italic.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf"
+
+  fc-cache -fv >/dev/null
+  echo "Fuentes MesloLGS NF instaladas."
+  echo "Recordatorio: en tu terminal, seleccioná 'MesloLGS NF' como fuente personalizada."
+}
+
 apply_dotfiles() {
   if ! ask_yes_no "¿Aplicar dotfiles shell desde el repo?" "Y"; then
     return
@@ -92,15 +110,15 @@ apply_dconf() {
   local ext_file="$ROOT_DIR/dconf/gnome-extensions.dconf"
 
   if [[ -s "$gnome_file" ]]; then
-    dconf load /org/gnome/ < "$gnome_file"
-    echo "dconf GNOME aplicado desde gnome-settings.dconf"
+    sed "s|HOME_PLACEHOLDER|$HOME|g" "$gnome_file" | dconf load /org/gnome/
+    echo "dconf GNOME aplicado."
   else
     echo "No hay contenido en dconf/gnome-settings.dconf"
   fi
 
   if [[ -s "$ext_file" ]]; then
-    dconf load /org/gnome/shell/extensions/ < "$ext_file"
-    echo "dconf extensiones aplicado desde gnome-extensions.dconf"
+    sed "s|HOME_PLACEHOLDER|$HOME|g" "$ext_file" | dconf load /org/gnome/shell/extensions/
+    echo "dconf extensiones aplicado."
   else
     echo "No hay contenido en dconf/gnome-extensions.dconf"
   fi
@@ -110,6 +128,7 @@ main() {
   echo "== Setup Shell & UI =="
 
   install_zsh_stack
+  install_meslo_nerd_font
   apply_dotfiles
   apply_dconf
 

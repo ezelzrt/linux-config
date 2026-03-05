@@ -50,8 +50,8 @@ backup_dotfiles() {
 backup_dconf() {
   echo "== Backup dconf =="
   mkdir -p "$ROOT_DIR/dconf"
-  dconf dump /org/gnome/ > "$ROOT_DIR/dconf/gnome-settings.dconf"
-  dconf dump /org/gnome/shell/extensions/ > "$ROOT_DIR/dconf/gnome-extensions.dconf"
+  dconf dump /org/gnome/ | sed "s|$HOME|HOME_PLACEHOLDER|g" > "$ROOT_DIR/dconf/gnome-settings.dconf"
+  dconf dump /org/gnome/shell/extensions/ | sed "s|$HOME|HOME_PLACEHOLDER|g" > "$ROOT_DIR/dconf/gnome-extensions.dconf"
   echo "Guardado: dconf/gnome-settings.dconf"
   echo "Guardado: dconf/gnome-extensions.dconf"
 }
