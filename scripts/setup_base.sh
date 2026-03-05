@@ -42,6 +42,7 @@ install_apt_packages() {
     net-tools
     wireshark
     gnome-tweaks
+    gnome-shell-extension-manager
     dconf-cli
   )
 
@@ -111,6 +112,138 @@ install_nvm_node() {
   nvm install --lts
   nvm alias default 'lts/*'
   nvm use --lts
+}
+
+install_google_chrome() {
+  if ! ask_yes_no "¿Instalar Google Chrome?" "Y"; then
+    return
+  fi
+
+  if command -v google-chrome >/dev/null 2>&1; then
+    echo "Google Chrome ya está instalado."
+    return
+  fi
+
+  echo "Instalando Google Chrome..."
+  wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list > /dev/null
+
+  sudo apt update
+  sudo apt install -y google-chrome-stable
+  echo "Google Chrome instalado."
+}
+
+install_bruno() {
+  if ! ask_yes_no "¿Instalar Bruno API Client?" "Y"; then
+    return
+  fi
+
+  if command -v bruno >/dev/null 2>&1; then
+    echo "Bruno ya está instalado."
+    return
+  fi
+
+  echo "Instalando Bruno..."
+  sudo mkdir -p /etc/apt/keyrings
+  sudo gpg --no-default-keyring --keyring /etc/apt/keyrings/bruno.gpg --keyserver keyserver.ubuntu.com --recv-keys 9FA6017ECABE0266
+  echo "deb [signed-by=/etc/apt/keyrings/bruno.gpg] http://debian.usebruno.com/ bruno stable" | sudo tee /etc/apt/sources.list.d/bruno.list > /dev/null
+
+  sudo apt update
+  sudo apt install -y bruno
+  echo "Bruno instalado."
+}
+
+install_vscode() {
+  if ! ask_yes_no "¿Instalar Visual Studio Code?" "Y"; then
+    return
+  fi
+
+  if command -v code >/dev/null 2>&1; then
+    echo "VS Code ya está instalado."
+    return
+  fi
+
+  echo "Instalando Visual Studio Code..."
+  wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
+  sudo install -D -o root -g root -m 644 /tmp/packages.microsoft.gpg /usr/share/keyrings/packages.microsoft.gpg
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+  rm /tmp/packages.microsoft.gpg
+
+  sudo apt update
+  sudo apt install -y code
+  echo "VS Code instalado. Recordá iniciar sesión para sincronizar extensiones y configuración."
+}
+
+install_slack() {
+  if ! ask_yes_no "¿Instalar Slack?" "Y"; then
+    return
+  fi
+
+  if command -v slack >/dev/null 2>&1; then
+    echo "Slack ya está instalado."
+    return
+  fi
+
+  echo "Descargando e instalando Slack..."
+  wget -O /tmp/slack-desktop.deb https://downloads.slack-edge.com/releases/linux/4.41.104/prod/x64/slack-desktop-4.41.104-amd64.deb
+  sudo apt install -y /tmp/slack-desktop.deb
+  rm /tmp/slack-desktop.deb
+  echo "Slack instalado."
+}
+
+install_zoom() {
+  if ! ask_yes_no "¿Instalar Zoom?" "Y"; then
+    return
+  fi
+
+  if command -v zoom >/dev/null 2>&1; then
+    echo "Zoom ya está instalado."
+    return
+  fi
+
+  echo "Descargando e instalando Zoom..."
+  wget -O /tmp/zoom_amd64.deb https://zoom.us/client/latest/zoom_amd64.deb
+  sudo apt install -y /tmp/zoom_amd64.deb
+  rm /tmp/zoom_amd64.deb
+  echo "Zoom instalado."
+}
+
+install_snap_apps() {
+  if ! ask_yes_no "¿Instalar aplicaciones por Snap (Discord, Postman, Spotify)?" "Y"; then
+    return
+  fi
+
+  if ! command -v snap >/dev/null 2>&1; then
+    echo "Snap no está instalado. Instalando snapd..."
+    sudo apt update
+    sudo apt install -y snapd
+  fi
+
+  # Discord
+  if ! snap list discord >/dev/null 2>&1; then
+    echo "Instalando Discord..."
+    sudo snap install discord
+  else
+    echo "Discord ya está instalado."
+  fi
+
+  # Postman (con --classic para permisos completos)
+  if ! snap list postman >/dev/null 2>&1; then
+    echo "Instalando Postman..."
+    sudo snap install postman --classic
+  else
+    echo "Postman ya está instalado."
+  fi
+
+  # Spotify
+  if ! snap list spotify >/dev/null 2>&1; then
+    echo "Instalando Spotify..."
+    sudo snap install spotify
+  else
+    echo "Spotify ya está instalado."
+  fi
+
+  echo "Apps Snap instaladas."
 }
 
 setup_git_profile() {
@@ -185,6 +318,12 @@ main() {
   install_rustup
   install_docker
   install_nvm_node
+  install_google_chrome
+  install_bruno
+  install_vscode
+  install_slack
+  install_zoom
+  install_snap_apps
   setup_git_profile
   setup_dualboot_time_sync
   setup_corectrl
