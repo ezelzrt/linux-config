@@ -48,8 +48,8 @@ translate=true
 [desktop/background]
 color-shading-type='solid'
 picture-options='zoom'
-picture-uri='file:///home/eze/.local/share/backgrounds/2026-01-31-16-59-43-fondo-escritorio.webp'
-picture-uri-dark='file:///home/eze/.local/share/backgrounds/2026-01-31-16-59-43-fondo-escritorio.webp'
+picture-uri='file://HOME_PLACEHOLDER/.local/share/backgrounds/2026-01-31-16-59-43-fondo-escritorio.webp'
+picture-uri-dark='file://HOME_PLACEHOLDER/.local/share/backgrounds/2026-01-31-16-59-43-fondo-escritorio.webp'
 primary-color='#000000000000'
 secondary-color='#000000000000'
 
@@ -65,10 +65,13 @@ gtk-theme='Yaru-blue-dark'
 icon-theme='Yaru-blue'
 
 [desktop/notifications]
-application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup']
+application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup', 'code-code']
 
 [desktop/notifications/application/antigravity]
 application-id='antigravity.desktop'
+
+[desktop/notifications/application/code-code]
+application-id='code_code.desktop'
 
 [desktop/notifications/application/discord-discord]
 application-id='discord_discord.desktop'
@@ -113,7 +116,7 @@ recent-files-max-age=-1
 [desktop/screensaver]
 color-shading-type='solid'
 picture-options='zoom'
-picture-uri='file:///home/eze/.local/share/backgrounds/2026-01-31-16-59-43-fondo-escritorio.webp'
+picture-uri='file://HOME_PLACEHOLDER/.local/share/backgrounds/2026-01-31-16-59-43-fondo-escritorio.webp'
 primary-color='#000000000000'
 secondary-color='#000000000000'
 
@@ -185,10 +188,10 @@ search-filter-time-type='last_modified'
 initial-size=(890, 550)
 
 [portal/filechooser/com.google.Chrome]
-last-folder-path='/home/eze/Downloads'
+last-folder-path='HOME_PLACEHOLDER/Downloads'
 
 [portal/filechooser/org.gnome.Settings]
-last-folder-path='/home/eze/Downloads/drive-download-20260131T195415Z-3-001'
+last-folder-path='HOME_PLACEHOLDER/Downloads/drive-download-20260131T195415Z-3-001'
 
 [power-manager]
 info-history-type='charge'
@@ -370,15 +373,15 @@ panel-positions='{"DEL-CY7NKY2":"TOP"}'
 panel-sizes='{"DEL-CY7NKY2":44}'
 panel-top-bottom-margins=0
 panel-top-bottom-padding=4
-prefs-opened=false
+prefs-opened=true
 scroll-icon-delay=100
 scroll-panel-action='SWITCH_WORKSPACE'
 scroll-panel-delay=100
 shift-click-action='MINIMIZE'
 shift-middle-click-action='LAUNCH'
 shortcut-num-keys='NUM_KEYPAD'
-show-apps-icon-file='/home/eze/Downloads/Boca_escudo.png'
-show-apps-icon-side-padding=8
+show-apps-icon-file='HOME_PLACEHOLDER/linux-config/img/Boca_escudo.png'
+show-apps-icon-side-padding=10
 show-apps-override-escape=true
 show-favorites=true
 show-favorites-all-monitors=true
@@ -437,7 +440,7 @@ workspace-switcher-size=0
 workspaces-in-app-grid=true
 
 [shell/extensions/lockscreen-extension]
-backgrounds-folder-path='/home/eze/Downloads/fondos'
+backgrounds-folder-path='HOME_PLACEHOLDER/Downloads/fondos'
 hide-lockscreen-extension-button=false
 
 [shell/extensions/system-monitor-next-applet]

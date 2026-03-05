@@ -149,15 +149,15 @@ panel-positions='{"DEL-CY7NKY2":"TOP"}'
 panel-sizes='{"DEL-CY7NKY2":44}'
 panel-top-bottom-margins=0
 panel-top-bottom-padding=4
-prefs-opened=false
+prefs-opened=true
 scroll-icon-delay=100
 scroll-panel-action='SWITCH_WORKSPACE'
 scroll-panel-delay=100
 shift-click-action='MINIMIZE'
 shift-middle-click-action='LAUNCH'
 shortcut-num-keys='NUM_KEYPAD'
-show-apps-icon-file='/home/eze/Downloads/Boca_escudo.png'
-show-apps-icon-side-padding=8
+show-apps-icon-file='HOME_PLACEHOLDER/linux-config/img/Boca_escudo.png'
+show-apps-icon-side-padding=10
 show-apps-override-escape=true
 show-favorites=true
 show-favorites-all-monitors=true
@@ -216,7 +216,7 @@ workspace-switcher-size=0
 workspaces-in-app-grid=true
 
 [lockscreen-extension]
-backgrounds-folder-path='/home/eze/Downloads/fondos'
+backgrounds-folder-path='HOME_PLACEHOLDER/Downloads/fondos'
 hide-lockscreen-extension-button=false
 
 [system-monitor-next-applet]
