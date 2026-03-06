@@ -63,6 +63,72 @@ symlink_dotfile() {
   fi
 }
 
+# ── Selección de perfil ────────────────────────────────────────────────────────
+# Devuelve en stdout el path absoluto al directorio del perfil elegido.
+# Si no hay perfiles usa fallback al root dconf/.
+# El resto de la salida va a stderr.
+select_profile() {
+  local profiles_dir="$ROOT_DIR/profiles"
+
+  # Listar perfiles existentes
+  local -a existing=()
+  if [[ -d "$profiles_dir" ]]; then
+    while IFS= read -r -d '' d; do
+      # Solo incluir si tiene al menos un dconf file
+      if [[ -f "$d/dconf/gnome-settings.dconf" || -f "$d/dconf/gnome-extensions.dconf" ]]; then
+        existing+=("$d")
+      fi
+    done < <(find "$profiles_dir" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
+  fi
+
+  echo -e "\n${C_CYAN}${C_BOLD}── Selección de perfil ──${C_RESET}" >&2
+
+  # Sin perfiles → fallback a root dconf/
+  if [[ ${#existing[@]} -eq 0 ]]; then
+    if [[ -f "$ROOT_DIR/dconf/gnome-settings.dconf" ]]; then
+      log_warn "No hay perfiles. Usando configuración raíz (dconf/)." >&2
+      echo "$ROOT_DIR"   # devuelve ROOT_DIR; apply_dconf lo maneja
+      return
+    else
+      log_error "No hay perfiles ni configuración raíz. Saltando dconf." >&2
+      echo ""
+      return
+    fi
+  fi
+
+  # Un solo perfil → seleccionar automáticamente
+  if [[ ${#existing[@]} -eq 1 ]]; then
+    local auto="${existing[0]}"
+    log_info "Perfil único encontrado: ${C_BOLD}$(basename "$auto")${C_RESET}. Usando automáticamente." >&2
+    echo "$auto"
+    return
+  fi
+
+  # Múltiples perfiles → pedir elección
+  echo -e "  Perfiles disponibles:" >&2
+  local i=1
+  for p in "${existing[@]}"; do
+    echo -e "    ${C_BOLD}$i)${C_RESET}  $(basename "$p")" >&2
+    (( i++ ))
+  done
+
+  local chosen=""
+  while true; do
+    echo -en "  ${C_BOLD}?${C_RESET}  Elegí el número de perfil a restaurar: " >&2
+    read -r answer
+    if [[ "$answer" =~ ^[0-9]+$ ]]; then
+      local idx=$(( answer - 1 ))
+      if (( idx >= 0 && idx < ${#existing[@]} )); then
+        chosen="${existing[$idx]}"
+        log_info "Perfil seleccionado: ${C_BOLD}$(basename "$chosen")${C_RESET}" >&2
+        echo "$chosen"
+        return
+      fi
+    fi
+    log_warn "Número fuera de rango." >&2
+  done
+}
+
 install_zsh_stack() {
   log_section "Zsh + Oh My Zsh + Powerlevel10k"
   if ! ask_yes_no "¿Instalar stack Zsh (zsh, fonts, utilidades)?" "Y"; then
@@ -147,21 +213,38 @@ apply_dotfiles() {
     return
   fi
 
-  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.zshrc"   "$HOME/.zshrc"
+  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.zshrc"    "$HOME/.zshrc"
   symlink_dotfile "$ROOT_DIR/dotfiles/shell/.p10k.zsh" "$HOME/.p10k.zsh"
-  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.bashrc"  "$HOME/.bashrc"
-  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.profile" "$HOME/.profile"
+  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.bashrc"   "$HOME/.bashrc"
+  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.profile"  "$HOME/.profile"
+}
+
+# ── Leer extensiones habilitadas desde el dconf de un perfil ──────────────────
+# Busca la clave enabled-extensions en gnome-settings.dconf y devuelve una lista
+# de UUIDs, uno por línea.
+parse_enabled_extensions() {
+  local settings_file="$1"
+  if [[ ! -f "$settings_file" ]]; then
+    return
+  fi
+  # La clave tiene este formato (puede estar en [/org/gnome/shell] o [org/gnome/shell]):
+  #   enabled-extensions=['uuid1', 'uuid2', ...]
+  grep -A0 "^enabled-extensions=" "$settings_file" \
+    | grep -oE "'[^']+'" \
+    | tr -d "'" \
+    | grep -v "^$"
 }
 
 install_gnome_extensions() {
+  local profile_dir="${1:-}"
+
   log_section "Extensiones GNOME"
-  if ! ask_yes_no "¿Instalar extensiones GNOME (dash-to-panel, blur-my-shell, etc.)?" "Y"; then
+  if ! ask_yes_no "¿Instalar extensiones GNOME?" "Y"; then
     return
   fi
 
-  # Dependencias apt de extensiones
+  # ── Dependencias apt ────────────────────────────────────────────────────────
   log_info "Instalando dependencias del sistema para extensiones..."
-  # gir1.2-gtop-2.0 es requerido por system-monitor-next (typelib GTop para GJS)
   local -a ext_deps=(gir1.2-gtop-2.0)
   local missing_deps=()
   for pkg in "${ext_deps[@]}"; do
@@ -176,17 +259,41 @@ install_gnome_extensions() {
     log_ok "Dependencias instaladas: ${missing_deps[*]}"
   fi
 
-  # Lista de UUIDs (mantener sincronizada con enabled-extensions en gnome-settings.dconf)
-  local -a extensions=(
-    "dash-to-panel@jderose9.github.com"
-    "blur-my-shell@aunetx"
-    "clipboard-indicator@tudmotu.com"
-    "system-monitor-next@paradoxxx.zero.gmail.com"
-    "tiling-assistant@ubuntu.com"
-    "ding@rastersoft.com"
-  )
+  # ── Obtener lista de extensiones ─────────────────────────────────────────
+  local -a extensions=()
 
-  # Instalar gnome-extensions-cli (gext) via pipx si no está disponible
+  # Intentar leer desde el perfil seleccionado
+  local settings_file=""
+  if [[ -n "$profile_dir" && -f "$profile_dir/dconf/gnome-settings.dconf" ]]; then
+    settings_file="$profile_dir/dconf/gnome-settings.dconf"
+  elif [[ -f "$ROOT_DIR/dconf/gnome-settings.dconf" ]]; then
+    # Fallback a dconf raíz
+    settings_file="$ROOT_DIR/dconf/gnome-settings.dconf"
+  fi
+
+  if [[ -n "$settings_file" ]]; then
+    while IFS= read -r uuid; do
+      [[ -n "$uuid" ]] && extensions+=("$uuid")
+    done < <(parse_enabled_extensions "$settings_file")
+  fi
+
+  # Fallback a lista hardcodeada si no se encontró nada
+  if [[ ${#extensions[@]} -eq 0 ]]; then
+    log_warn "No se encontraron extensiones en el perfil. Usando lista por defecto."
+    extensions=(
+      "dash-to-panel@jderose9.github.com"
+      "blur-my-shell@aunetx"
+      "clipboard-indicator@tudmotu.com"
+      "system-monitor-next@paradoxxx.zero.gmail.com"
+      "tiling-assistant@ubuntu.com"
+      "ding@rastersoft.com"
+    )
+  else
+    log_info "Extensiones leídas del perfil (${#extensions[@]}):"
+    printf "    ${C_DIM}- %s${C_RESET}\n" "${extensions[@]}"
+  fi
+
+  # ── Instalar gext via pipx ───────────────────────────────────────────────
   if ! command -v gext >/dev/null 2>&1; then
     log_info "Instalando gnome-extensions-cli (gext) via pipx..."
     if ! command -v pipx >/dev/null 2>&1; then
@@ -194,7 +301,6 @@ install_gnome_extensions() {
       pipx ensurepath
     fi
     pipx install gnome-extensions-cli --system-site-packages
-    # Aseguramos que el PATH de pipx esté disponible en esta sesión
     export PATH="$HOME/.local/bin:$PATH"
   else
     log_skip "gnome-extensions-cli (gext)"
@@ -206,6 +312,7 @@ install_gnome_extensions() {
     return
   fi
 
+  # ── Instalar extensiones ─────────────────────────────────────────────────
   log_info "Instalando extensiones..."
   for uuid in "${extensions[@]}"; do
     if gnome-extensions info "$uuid" >/dev/null 2>&1; then
@@ -223,20 +330,61 @@ install_gnome_extensions() {
   log_warn "Si alguna extensión no aparece activa, cerrá y volvé a abrir sesión."
 }
 
+# ── Copiar imágenes del perfil a backgrounds ──────────────────────────────────
+copy_profile_images() {
+  local profile_dir="$1"
+  local img_dir="$profile_dir/img"
+
+  if [[ ! -d "$img_dir" ]]; then
+    return
+  fi
+
+  local files
+  files=$(find "$img_dir" -maxdepth 1 -type f \( \
+    -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \
+    -o -iname "*.webp" -o -iname "*.gif" -o -iname "*.svg" \
+    -o -iname "*.bmp" \
+  \) 2>/dev/null | sort)
+
+  if [[ -z "$files" ]]; then
+    return
+  fi
+
+  local dest="$HOME/.local/share/backgrounds"
+  mkdir -p "$dest"
+
+  log_info "Copiando imágenes del perfil a ${C_DIM}$dest${C_RESET}..."
+  while IFS= read -r f; do
+    local fname
+    fname="$(basename "$f")"
+    cp "$f" "$dest/$fname"
+    log_ok "Imagen copiada: ${C_DIM}$fname${C_RESET}"
+  done <<< "$files"
+}
+
 apply_dconf() {
+  local profile_dir="${1:-}"
+
   log_section "Configuración GNOME (dconf)"
   if ! ask_yes_no "¿Aplicar configuraciones GNOME desde dconf?" "Y"; then
     return
   fi
 
-  local gnome_file="$ROOT_DIR/dconf/gnome-settings.dconf"
-  local ext_file="$ROOT_DIR/dconf/gnome-extensions.dconf"
+  # Determinar qué dconf usar: perfil o fallback raíz
+  local gnome_file ext_file
+  if [[ -n "$profile_dir" && "$profile_dir" != "$ROOT_DIR" ]]; then
+    gnome_file="$profile_dir/dconf/gnome-settings.dconf"
+    ext_file="$profile_dir/dconf/gnome-extensions.dconf"
+    log_info "Usando perfil: ${C_BOLD}$(basename "$profile_dir")${C_RESET}"
+  else
+    gnome_file="$ROOT_DIR/dconf/gnome-settings.dconf"
+    ext_file="$ROOT_DIR/dconf/gnome-extensions.dconf"
+    log_info "Usando configuración raíz (fallback)."
+  fi
 
-  # ── Detectar monitor principal (conector xrandr, ej: eDP-1, DP-1, HDMI-1) ──
-  # dash-to-panel usa este ID como clave en panel-positions/sizes/anchors/element-positions
+  # ── Detectar monitor principal ─────────────────────────────────────────────
   local monitor_id=""
   if command -v xrandr >/dev/null 2>&1; then
-    # Prioridad: monitor marcado como "primary"; si no hay, el primero conectado
     monitor_id=$(xrandr --query 2>/dev/null \
       | awk '/ connected( primary)?/{print $1; exit}')
   fi
@@ -248,6 +396,12 @@ apply_dconf() {
     monitor_id="MONITOR_PLACEHOLDER"
   fi
 
+  # ── Copiar imágenes del perfil antes de cargar dconf ──────────────────────
+  if [[ -n "$profile_dir" && "$profile_dir" != "$ROOT_DIR" ]]; then
+    copy_profile_images "$profile_dir"
+  fi
+
+  # ── Aplicar dconf ─────────────────────────────────────────────────────────
   if [[ -s "$gnome_file" ]]; then
     sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
         -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
@@ -255,7 +409,7 @@ apply_dconf() {
         "$gnome_file" | dconf load /org/gnome/
     log_ok "dconf GNOME aplicado."
   else
-    log_warn "No hay contenido en dconf/gnome-settings.dconf"
+    log_warn "No hay contenido en $(basename "$gnome_file")"
   fi
 
   if [[ -s "$ext_file" ]]; then
@@ -265,7 +419,7 @@ apply_dconf() {
         "$ext_file" | dconf load /org/gnome/shell/extensions/
     log_ok "dconf extensiones aplicado."
   else
-    log_warn "No hay contenido en dconf/gnome-extensions.dconf"
+    log_warn "No hay contenido en $(basename "$ext_file")"
   fi
 
   log_warn "Cerrá y volvé a abrir sesión para que todos los cambios de GNOME Shell surtan efecto."
@@ -279,8 +433,13 @@ main() {
   install_zsh_stack
   install_meslo_nerd_font
   apply_dotfiles
-  install_gnome_extensions
-  apply_dconf
+
+  # Seleccionar perfil una sola vez; se pasa a extensiones y a dconf
+  local profile_dir
+  profile_dir="$(select_profile)"
+
+  install_gnome_extensions "$profile_dir"
+  apply_dconf "$profile_dir"
 
   echo -e "\n${C_GREEN}${C_BOLD}✔ Setup shell/UI finalizado.${C_RESET}\n"
 }
