@@ -4,6 +4,23 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
+# ── Colores ────────────────────────────────────────────────────────────────────
+C_RESET='\033[0m'
+C_BOLD='\033[1m'
+C_CYAN='\033[1;36m'
+C_GREEN='\033[1;32m'
+C_YELLOW='\033[1;33m'
+C_RED='\033[1;31m'
+C_BLUE='\033[1;34m'
+C_DIM='\033[2m'
+
+log_section() { echo -e "\n${C_CYAN}${C_BOLD}── $1 ──${C_RESET}"; }
+log_ok()      { echo -e "  ${C_GREEN}✔${C_RESET}  $1"; }
+log_skip()    { echo -e "  ${C_DIM}↷  $1 (ya instalado)${C_RESET}"; }
+log_info()    { echo -e "  ${C_BLUE}→${C_RESET}  $1"; }
+log_warn()    { echo -e "  ${C_YELLOW}⚠${C_RESET}  $1"; }
+log_error()   { echo -e "  ${C_RED}✖${C_RESET}  $1"; }
+
 ask_yes_no() {
   local prompt="$1"
   local default="${2:-Y}"
@@ -11,17 +28,19 @@ ask_yes_no() {
 
   while true; do
     if [[ "$default" == "Y" ]]; then
-      read -r -p "$prompt [Y/n]: " answer
+      echo -en "  ${C_BOLD}?${C_RESET}  $prompt ${C_DIM}[Y/n]${C_RESET}: "
+      read -r answer
       answer="${answer:-Y}"
     else
-      read -r -p "$prompt [y/N]: " answer
+      echo -en "  ${C_BOLD}?${C_RESET}  $prompt ${C_DIM}[y/N]${C_RESET}: "
+      read -r answer
       answer="${answer:-N}"
     fi
 
     case "$answer" in
       Y|y|yes|YES) return 0 ;;
-      N|n|no|NO) return 1 ;;
-      *) echo "Respuesta inválida. Usá y/n." ;;
+      N|n|no|NO)   return 1 ;;
+      *) log_warn "Respuesta inválida. Usá y/n." ;;
     esac
   done
 }
@@ -30,6 +49,7 @@ backup_if_needed() {
   local target="$1"
   if [[ -e "$target" && ! -L "$target" ]]; then
     cp -r "$target" "$target.bak.$(date +%Y%m%d%H%M%S)"
+    log_info "Backup creado: $target.bak.*"
   fi
 }
 
@@ -39,40 +59,59 @@ symlink_dotfile() {
   if [[ -f "$source" ]]; then
     backup_if_needed "$target"
     ln -sfn "$source" "$target"
-    echo "Link: $target -> $source"
+    log_ok "Link: ${C_DIM}$target${C_RESET} → ${C_DIM}$source${C_RESET}"
   fi
 }
 
 install_zsh_stack() {
+  log_section "Zsh + Oh My Zsh + Powerlevel10k"
   if ! ask_yes_no "¿Instalar stack Zsh (zsh, fonts, utilidades)?" "Y"; then
     return
   fi
 
-  sudo apt update
+  sudo apt update -q
   sudo apt install -y zsh git curl wget unzip
 
   if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+    log_info "Instalando Oh My Zsh..."
     RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    log_ok "Oh My Zsh instalado."
+  else
+    log_skip "Oh My Zsh"
   fi
 
   if [[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]]; then
+    log_info "Clonando Powerlevel10k..."
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+    log_ok "Powerlevel10k instalado."
+  else
+    log_skip "Powerlevel10k"
   fi
 
   if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
+    log_info "Clonando zsh-autosuggestions..."
     git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+    log_ok "zsh-autosuggestions instalado."
+  else
+    log_skip "zsh-autosuggestions"
   fi
 
   if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
+    log_info "Clonando zsh-syntax-highlighting..."
     git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+    log_ok "zsh-syntax-highlighting instalado."
+  else
+    log_skip "zsh-syntax-highlighting"
   fi
 
   if ask_yes_no "¿Cambiar shell por defecto a zsh?" "Y"; then
     chsh -s "$(command -v zsh)"
+    log_ok "Shell por defecto cambiado a zsh."
   fi
 }
 
 install_meslo_nerd_font() {
+  log_section "Fuentes MesloLGS NF"
   if ! ask_yes_no "¿Instalar fuentes MesloLGS NF recomendadas para Powerlevel10k?" "Y"; then
     return
   fi
@@ -80,28 +119,112 @@ install_meslo_nerd_font() {
   local font_dir="$HOME/.local/share/fonts"
   mkdir -p "$font_dir"
 
-  wget -q -O "$font_dir/MesloLGS NF Regular.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf"
-  wget -q -O "$font_dir/MesloLGS NF Bold.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf"
-  wget -q -O "$font_dir/MesloLGS NF Italic.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf"
-  wget -q -O "$font_dir/MesloLGS NF Bold Italic.ttf" "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf"
+  local -A fonts=(
+    ["MesloLGS NF Regular.ttf"]="MesloLGS%20NF%20Regular.ttf"
+    ["MesloLGS NF Bold.ttf"]="MesloLGS%20NF%20Bold.ttf"
+    ["MesloLGS NF Italic.ttf"]="MesloLGS%20NF%20Italic.ttf"
+    ["MesloLGS NF Bold Italic.ttf"]="MesloLGS%20NF%20Bold%20Italic.ttf"
+  )
+
+  for name in "${!fonts[@]}"; do
+    if [[ -f "$font_dir/$name" ]]; then
+      log_skip "$name"
+    else
+      log_info "Descargando $name..."
+      wget -q -O "$font_dir/$name" "https://github.com/romkatv/powerlevel10k-media/raw/master/${fonts[$name]}"
+      log_ok "$name"
+    fi
+  done
 
   fc-cache -fv >/dev/null
-  echo "Fuentes MesloLGS NF instaladas."
-  echo "Recordatorio: en tu terminal, seleccioná 'MesloLGS NF' como fuente personalizada."
+  log_ok "Cache de fuentes actualizado."
+  log_warn "Recordá seleccionar 'MesloLGS NF' como fuente en tu terminal."
 }
 
 apply_dotfiles() {
+  log_section "Dotfiles"
   if ! ask_yes_no "¿Aplicar dotfiles shell desde el repo?" "Y"; then
     return
   fi
 
-  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.zshrc" "$HOME/.zshrc"
+  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.zshrc"   "$HOME/.zshrc"
   symlink_dotfile "$ROOT_DIR/dotfiles/shell/.p10k.zsh" "$HOME/.p10k.zsh"
-  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.bashrc" "$HOME/.bashrc"
+  symlink_dotfile "$ROOT_DIR/dotfiles/shell/.bashrc"  "$HOME/.bashrc"
   symlink_dotfile "$ROOT_DIR/dotfiles/shell/.profile" "$HOME/.profile"
 }
 
+install_gnome_extensions() {
+  log_section "Extensiones GNOME"
+  if ! ask_yes_no "¿Instalar extensiones GNOME (dash-to-panel, blur-my-shell, etc.)?" "Y"; then
+    return
+  fi
+
+  # Dependencias apt de extensiones
+  log_info "Instalando dependencias del sistema para extensiones..."
+  # gir1.2-gtop-2.0 es requerido por system-monitor-next (typelib GTop para GJS)
+  local -a ext_deps=(gir1.2-gtop-2.0)
+  local missing_deps=()
+  for pkg in "${ext_deps[@]}"; do
+    if dpkg -s "$pkg" >/dev/null 2>&1; then
+      log_skip "$pkg"
+    else
+      missing_deps+=("$pkg")
+    fi
+  done
+  if [[ ${#missing_deps[@]} -gt 0 ]]; then
+    sudo apt install -y "${missing_deps[@]}"
+    log_ok "Dependencias instaladas: ${missing_deps[*]}"
+  fi
+
+  # Lista de UUIDs (mantener sincronizada con enabled-extensions en gnome-settings.dconf)
+  local -a extensions=(
+    "dash-to-panel@jderose9.github.com"
+    "blur-my-shell@aunetx"
+    "clipboard-indicator@tudmotu.com"
+    "system-monitor-next@paradoxxx.zero.gmail.com"
+    "tiling-assistant@ubuntu.com"
+    "ding@rastersoft.com"
+  )
+
+  # Instalar gnome-extensions-cli (gext) via pipx si no está disponible
+  if ! command -v gext >/dev/null 2>&1; then
+    log_info "Instalando gnome-extensions-cli (gext) via pipx..."
+    if ! command -v pipx >/dev/null 2>&1; then
+      sudo apt install -y pipx
+      pipx ensurepath
+    fi
+    pipx install gnome-extensions-cli --system-site-packages
+    # Aseguramos que el PATH de pipx esté disponible en esta sesión
+    export PATH="$HOME/.local/bin:$PATH"
+  else
+    log_skip "gnome-extensions-cli (gext)"
+  fi
+
+  if ! command -v gext >/dev/null 2>&1; then
+    log_error "No se pudo instalar gext. Instalá manualmente:"
+    printf "    ${C_DIM}- %s${C_RESET}\n" "${extensions[@]}"
+    return
+  fi
+
+  log_info "Instalando extensiones..."
+  for uuid in "${extensions[@]}"; do
+    if gnome-extensions info "$uuid" >/dev/null 2>&1; then
+      log_skip "$uuid"
+    else
+      log_info "Instalando: $uuid"
+      if gext install "$uuid" 2>/dev/null; then
+        log_ok "$uuid"
+      else
+        log_warn "No se pudo instalar $uuid (puede requerir reinicio de sesión)"
+      fi
+    fi
+  done
+
+  log_warn "Si alguna extensión no aparece activa, cerrá y volvé a abrir sesión."
+}
+
 apply_dconf() {
+  log_section "Configuración GNOME (dconf)"
   if ! ask_yes_no "¿Aplicar configuraciones GNOME desde dconf?" "Y"; then
     return
   fi
@@ -109,30 +232,57 @@ apply_dconf() {
   local gnome_file="$ROOT_DIR/dconf/gnome-settings.dconf"
   local ext_file="$ROOT_DIR/dconf/gnome-extensions.dconf"
 
-  if [[ -s "$gnome_file" ]]; then
-    sed "s|HOME_PLACEHOLDER|$HOME|g" "$gnome_file" | dconf load /org/gnome/
-    echo "dconf GNOME aplicado."
+  # ── Detectar monitor principal (conector xrandr, ej: eDP-1, DP-1, HDMI-1) ──
+  # dash-to-panel usa este ID como clave en panel-positions/sizes/anchors/element-positions
+  local monitor_id=""
+  if command -v xrandr >/dev/null 2>&1; then
+    # Prioridad: monitor marcado como "primary"; si no hay, el primero conectado
+    monitor_id=$(xrandr --query 2>/dev/null \
+      | awk '/ connected( primary)?/{print $1; exit}')
+  fi
+
+  if [[ -n "$monitor_id" ]]; then
+    log_info "Monitor detectado: ${C_BOLD}$monitor_id${C_RESET}"
   else
-    echo "No hay contenido en dconf/gnome-settings.dconf"
+    log_warn "No se pudo detectar el monitor. La config de dash-to-panel puede no aplicar."
+    monitor_id="MONITOR_PLACEHOLDER"
+  fi
+
+  if [[ -s "$gnome_file" ]]; then
+    sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
+        -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
+        -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
+        "$gnome_file" | dconf load /org/gnome/
+    log_ok "dconf GNOME aplicado."
+  else
+    log_warn "No hay contenido en dconf/gnome-settings.dconf"
   fi
 
   if [[ -s "$ext_file" ]]; then
-    sed "s|HOME_PLACEHOLDER|$HOME|g" "$ext_file" | dconf load /org/gnome/shell/extensions/
-    echo "dconf extensiones aplicado."
+    sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
+        -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
+        -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
+        "$ext_file" | dconf load /org/gnome/shell/extensions/
+    log_ok "dconf extensiones aplicado."
   else
-    echo "No hay contenido en dconf/gnome-extensions.dconf"
+    log_warn "No hay contenido en dconf/gnome-extensions.dconf"
   fi
+
+  log_warn "Cerrá y volvé a abrir sesión para que todos los cambios de GNOME Shell surtan efecto."
 }
 
 main() {
-  echo "== Setup Shell & UI =="
+  echo -e "\n${C_CYAN}${C_BOLD}════════════════════════════════════${C_RESET}"
+  echo -e "${C_CYAN}${C_BOLD}   Setup Shell & UI${C_RESET}"
+  echo -e "${C_CYAN}${C_BOLD}════════════════════════════════════${C_RESET}"
 
   install_zsh_stack
   install_meslo_nerd_font
   apply_dotfiles
+  install_gnome_extensions
   apply_dconf
 
-  echo "\nSetup shell/UI finalizado."
+  echo -e "\n${C_GREEN}${C_BOLD}✔ Setup shell/UI finalizado.${C_RESET}\n"
 }
 
 main "$@"
