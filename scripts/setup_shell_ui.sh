@@ -90,11 +90,11 @@ select_profile() {
   log_section "Selección de perfil"
 
   if [[ ${#existing[@]} -eq 0 ]]; then
-    if [[ -f "$ROOT_DIR/dconf/gnome-settings.dconf" ]]; then
-      log_warn "No hay perfiles. Usando configuración raíz (dconf/)."
-      echo "$ROOT_DIR"
+    if [[ -f "$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf" ]]; then
+      log_warn "No hay perfiles. Usando perfil por defecto (profiles/default/)."
+      echo "$ROOT_DIR/profiles/default"
     else
-      log_error "No hay perfiles ni configuración raíz. Saltando configuración GNOME."
+      log_error "No hay perfiles ni configuración por defecto. Saltando configuración GNOME."
       echo ""
     fi
     return
@@ -133,10 +133,8 @@ select_profile() {
 # ── Etiqueta de sección con perfil ────────────────────────────────────────────
 profile_label() {
   local profile_dir="$1"
-  if [[ -n "$profile_dir" && "$profile_dir" != "$ROOT_DIR" ]]; then
+  if [[ -n "$profile_dir" ]]; then
     echo " ${C_DIM}[perfil: $(basename "$profile_dir")]${C_RESET}"
-  elif [[ "$profile_dir" == "$ROOT_DIR" ]]; then
-    echo " ${C_DIM}[fallback: dconf/]${C_RESET}"
   else
     echo ""
   fi
@@ -238,13 +236,13 @@ apply_profile_config() {
     return
   fi
 
-  # ── Dotfiles: desde el perfil, con fallback a dotfiles/shell/ del repo ───────
+  # ── Dotfiles: desde el perfil, con fallback a profiles/default/dotfiles/ ────
   local dotfiles_src
   if [[ "$profile_dir" != "$ROOT_DIR" && -d "$profile_dir/dotfiles" ]]; then
     dotfiles_src="$profile_dir/dotfiles"
     log_info "Dotfiles desde perfil: ${C_DIM}$dotfiles_src${C_RESET}"
   else
-    dotfiles_src="$ROOT_DIR/dotfiles/shell"
+    dotfiles_src="$ROOT_DIR/profiles/default/dotfiles"
     log_warn "Perfil sin dotfiles propios. Usando fallback: ${C_DIM}$dotfiles_src${C_RESET}"
   fi
   copy_dotfile "$dotfiles_src/.zshrc"    "$HOME/.zshrc"
@@ -258,8 +256,8 @@ apply_profile_config() {
     gnome_file="$profile_dir/dconf/gnome-settings.dconf"
     ext_file="$profile_dir/dconf/gnome-extensions.dconf"
   else
-    gnome_file="$ROOT_DIR/dconf/gnome-settings.dconf"
-    ext_file="$ROOT_DIR/dconf/gnome-extensions.dconf"
+    gnome_file="$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf"
+    ext_file="$ROOT_DIR/profiles/default/dconf/gnome-extensions.dconf"
   fi
 
   # ── Detectar monitor ─────────────────────────────────────────────────────
@@ -338,8 +336,8 @@ install_gnome_extensions() {
 
   if [[ -n "$profile_dir" && "$profile_dir" != "$ROOT_DIR" && -f "$profile_dir/dconf/gnome-settings.dconf" ]]; then
     settings_file="$profile_dir/dconf/gnome-settings.dconf"
-  elif [[ -f "$ROOT_DIR/dconf/gnome-settings.dconf" ]]; then
-    settings_file="$ROOT_DIR/dconf/gnome-settings.dconf"
+  elif [[ -f "$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf" ]]; then
+    settings_file="$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf"
   fi
 
   if [[ -n "$settings_file" ]]; then
