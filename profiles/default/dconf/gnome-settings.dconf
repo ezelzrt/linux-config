@@ -27,7 +27,11 @@ backend='google'
 prompt-check='2026-03-02T14:58:08.446202Z'
 
 [desktop/app-folders]
-folder-children=['Utilities', 'YaST', 'Pardus']
+folder-children=['Utilities', 'YaST', 'Pardus', '9962e3cb-fd74-48ca-9353-3f5b958738af']
+
+[desktop/app-folders/folders/9962e3cb-fd74-48ca-9353-3f5b958738af]
+apps=['libreoffice-startcenter.desktop', 'libreoffice-writer.desktop', 'libreoffice-calc.desktop', 'libreoffice-impress.desktop', 'libreoffice-draw.desktop', 'libreoffice-math.desktop']
+name='Office'
 
 [desktop/app-folders/folders/Pardus]
 categories=['X-Pardus-Apps']
@@ -143,7 +147,7 @@ show-sidebar=true
 sidebar-page='thumbnails'
 sidebar-size=182
 sizing-mode='automatic'
-window-ratio=(0.99344262295081964, 1.0714285714285714)
+window-ratio=(1.4122586062132663, 1.0709409591107657)
 
 [evolution-data-server]
 migrated=true
@@ -211,7 +215,7 @@ sleep-inactive-ac-timeout=3600
 sleep-inactive-ac-type='suspend'
 
 [shell]
-app-picker-layout=[{'software-properties-drivers.desktop': <{'position': <0>}>, 'antigravity.desktop': <{'position': <1>}>, 'bruno.desktop': <{'position': <2>}>, 'snap-store_snap-store.desktop': <{'position': <3>}>, 'org.gnome.clocks.desktop': <{'position': <4>}>, 'org.gnome.Calendar.desktop': <{'position': <5>}>, 'org.gnome.Snapshot.desktop': <{'position': <6>}>, 'org.gnome.Totem.desktop': <{'position': <7>}>, 'org.gnome.Calculator.desktop': <{'position': <8>}>, 'org.corectrl.corectrl.desktop': <{'position': <9>}>, 'simple-scan.desktop': <{'position': <10>}>, 'org.gnome.Settings.desktop': <{'position': <11>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <12>}>, 'firefox_firefox.desktop': <{'position': <13>}>, 'org.gnome.Terminal.desktop': <{'position': <14>}>, 'Utilities': <{'position': <15>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <16>}>, 'yelp.desktop': <{'position': <17>}>, 'org.gnome.eog.desktop': <{'position': <18>}>, 'gnome-language-selector.desktop': <{'position': <19>}>, 'libreoffice-startcenter.desktop': <{'position': <20>}>, 'libreoffice-calc.desktop': <{'position': <21>}>, 'libreoffice-draw.desktop': <{'position': <22>}>, 'libreoffice-impress.desktop': <{'position': <23>}>}, {'libreoffice-math.desktop': <{'position': <0>}>, 'libreoffice-writer.desktop': <{'position': <1>}>, 'postman_postman.desktop': <{'position': <2>}>, 'org.gnome.PowerStats.desktop': <{'position': <3>}>, 'org.remmina.Remmina.desktop': <{'position': <4>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <5>}>, 'org.gnome.Shotwell.desktop': <{'position': <6>}>, 'software-properties-gtk.desktop': <{'position': <7>}>, 'update-manager.desktop': <{'position': <8>}>, 'gnome-session-properties.desktop': <{'position': <9>}>, 'usb-creator-gtk.desktop': <{'position': <10>}>, 'org.gnome.TextEditor.desktop': <{'position': <11>}>, 'thunderbird_thunderbird.desktop': <{'position': <12>}>, 'transmission-gtk.desktop': <{'position': <13>}>, 'org.wireshark.Wireshark.desktop': <{'position': <14>}>, 'Zoom.desktop': <{'position': <15>}>}]
+app-picker-layout=[{'software-properties-drivers.desktop': <{'position': <0>}>, 'antigravity.desktop': <{'position': <1>}>, 'bruno.desktop': <{'position': <2>}>, 'snap-store_snap-store.desktop': <{'position': <3>}>, 'org.gnome.clocks.desktop': <{'position': <4>}>, 'org.gnome.Calendar.desktop': <{'position': <5>}>, 'org.gnome.Snapshot.desktop': <{'position': <6>}>, 'org.gnome.Totem.desktop': <{'position': <7>}>, 'org.gnome.Calculator.desktop': <{'position': <8>}>, 'org.corectrl.corectrl.desktop': <{'position': <9>}>, 'simple-scan.desktop': <{'position': <10>}>, 'org.gnome.Settings.desktop': <{'position': <11>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <12>}>, 'firefox_firefox.desktop': <{'position': <13>}>, 'org.gnome.Terminal.desktop': <{'position': <14>}>, 'Utilities': <{'position': <15>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <16>}>, 'yelp.desktop': <{'position': <17>}>, 'org.gnome.eog.desktop': <{'position': <18>}>, 'gnome-language-selector.desktop': <{'position': <19>}>, '9962e3cb-fd74-48ca-9353-3f5b958738af': <{'position': <20>}>}, {'postman_postman.desktop': <{'position': <0>}>, 'org.gnome.PowerStats.desktop': <{'position': <1>}>, 'org.remmina.Remmina.desktop': <{'position': <2>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <3>}>, 'org.gnome.Shotwell.desktop': <{'position': <4>}>, 'software-properties-gtk.desktop': <{'position': <5>}>, 'update-manager.desktop': <{'position': <6>}>, 'gnome-session-properties.desktop': <{'position': <7>}>, 'usb-creator-gtk.desktop': <{'position': <8>}>, 'org.gnome.TextEditor.desktop': <{'position': <9>}>, 'thunderbird_thunderbird.desktop': <{'position': <10>}>, 'transmission-gtk.desktop': <{'position': <11>}>, 'org.wireshark.Wireshark.desktop': <{'position': <12>}>, 'Zoom.desktop': <{'position': <13>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <14>}>, 'info.desktop': <{'position': <15>}>}]
 disable-user-extensions=false
 disabled-extensions=['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com', 'just-perfection-desktop@just-perfection', 'lockscreen-extension@pratap.fastmail.fm']
 enabled-extensions=['ding@rastersoft.com', 'tiling-assistant@ubuntu.com', 'dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx', 'clipboard-indicator@tudmotu.com', 'system-monitor-next@paradoxxx.zero.gmail.com']
@@ -308,7 +312,7 @@ max-alpha=0.90000000000000002
 middle-click-action='previews'
 multi-monitor=true
 preferred-monitor=-2
-preferred-monitor-by-connector='CONNECTOR_PLACEHOLDER'
+preferred-monitor-by-connector='MONITOR_PLACEHOLDER'
 preview-size-scale=0.0
 running-indicator-dominant-color=true
 running-indicator-style='DOTS'
@@ -366,14 +370,14 @@ leftbox-padding=-1
 leftbox-size=0
 middle-click-action='LAUNCH'
 overview-click-to-exit=false
-panel-anchors='{"MONITOR_PLACEHOLDER":"MIDDLE"}'
-panel-element-positions='{"MONITOR_PLACEHOLDER":[{"element":"activitiesButton","visible":true,"position":"stackedTL"},{"element":"showAppsButton","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"centerMonitor"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
-panel-lengths='{"MONITOR_PLACEHOLDER":100}'
-panel-positions='{"MONITOR_PLACEHOLDER":"TOP"}'
-panel-sizes='{"MONITOR_PLACEHOLDER":44}'
+panel-anchors='{"DEL-CY7NKY2":"MIDDLE"}'
+panel-element-positions='{"DEL-CY7NKY2":[{"element":"activitiesButton","visible":true,"position":"stackedTL"},{"element":"showAppsButton","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"centerMonitor"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+panel-lengths='{"DEL-CY7NKY2":100}'
+panel-positions='{"DEL-CY7NKY2":"TOP"}'
+panel-sizes='{"DEL-CY7NKY2":44}'
 panel-top-bottom-margins=0
 panel-top-bottom-padding=4
-prefs-opened=true
+prefs-opened=false
 scroll-icon-delay=100
 scroll-panel-action='SWITCH_WORKSPACE'
 scroll-panel-delay=100
