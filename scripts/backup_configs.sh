@@ -48,19 +48,18 @@ copy_if_exists() {
   local source="$1"
   local target="$2"
   if [[ ! -f "$source" ]]; then
-    log_skip "$source"
+    log_skip "No encontrado: ${C_DIM}$source${C_RESET}"
     return
   fi
-  # Si source es un symlink que apunta al mismo archivo que target, no hay nada que copiar
-  local real_source real_target
-  real_source="$(realpath "$source" 2>/dev/null || echo "$source")"
-  real_target="$(realpath "$target" 2>/dev/null || echo "$target")"
-  if [[ "$real_source" == "$real_target" ]]; then
-    log_skip "$(basename "$source") (symlink al repo, sin cambios)"
-    return
+  if [[ ! -f "$target" ]]; then
+    cp "$source" "$target"
+    log_ok "Guardado: ${C_DIM}$(basename "$target")${C_RESET}"
+  elif diff -q "$source" "$target" >/dev/null 2>&1; then
+    log_skip "$(basename "$source") sin cambios"
+  else
+    cp "$source" "$target"
+    log_ok "Actualizado: ${C_DIM}$(basename "$target")${C_RESET}"
   fi
-  cp "$source" "$target"
-  log_ok "Guardado: ${C_DIM}$target${C_RESET}"
 }
 
 # ── Selección / creación de perfil ────────────────────────────────────────────
@@ -153,14 +152,16 @@ select_or_create_profile() {
 }
 
 backup_dotfiles() {
-  log_section "Backup dotfiles"
-  mkdir -p "$ROOT_DIR/dotfiles/shell" "$ROOT_DIR/dotfiles/git"
+  local profile_name="$1"
+  local dotfiles_dir="$ROOT_DIR/profiles/$profile_name/dotfiles"
 
-  copy_if_exists "$HOME/.zshrc"     "$ROOT_DIR/dotfiles/shell/.zshrc"
-  copy_if_exists "$HOME/.p10k.zsh"  "$ROOT_DIR/dotfiles/shell/.p10k.zsh"
-  copy_if_exists "$HOME/.bashrc"    "$ROOT_DIR/dotfiles/shell/.bashrc"
-  copy_if_exists "$HOME/.profile"   "$ROOT_DIR/dotfiles/shell/.profile"
-  copy_if_exists "$HOME/.gitconfig" "$ROOT_DIR/dotfiles/git/.gitconfig"
+  log_section "Backup dotfiles → perfil '$profile_name'"
+  mkdir -p "$dotfiles_dir"
+
+  copy_if_exists "$HOME/.zshrc"    "$dotfiles_dir/.zshrc"
+  copy_if_exists "$HOME/.p10k.zsh" "$dotfiles_dir/.p10k.zsh"
+  copy_if_exists "$HOME/.bashrc"   "$dotfiles_dir/.bashrc"
+  copy_if_exists "$HOME/.profile"  "$dotfiles_dir/.profile"
 }
 
 backup_dconf() {
@@ -255,11 +256,16 @@ main() {
   echo -e "${C_CYAN}${C_BOLD}   Backup Configs${C_RESET}"
   echo -e "${C_CYAN}${C_BOLD}════════════════════════════════════${C_RESET}"
 
-  backup_dotfiles
-
   local profile_name
   profile_name="$(select_or_create_profile)"
+
+  backup_dotfiles "$profile_name"
   backup_dconf "$profile_name"
+
+  # .gitconfig es global (no por perfil)
+  log_section "Backup .gitconfig"
+  mkdir -p "$ROOT_DIR/dotfiles/git"
+  copy_if_exists "$HOME/.gitconfig" "$ROOT_DIR/dotfiles/git/.gitconfig"
 
   if ask_yes_no "¿Hacer commit y/o push en este repo?" "Y"; then
     commit_and_push

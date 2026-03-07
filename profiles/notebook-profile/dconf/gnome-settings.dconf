@@ -19,7 +19,7 @@ window-size=(360, 503)
 word-size=64
 
 [control-center]
-last-panel='ubuntu'
+last-panel='background'
 window-state=(980, 640, false)
 
 [deja-dup]
@@ -106,7 +106,7 @@ application-id='spotify_spotify.desktop'
 application-id='Zoom.desktop'
 
 [desktop/peripherals/keyboard]
-numlock-state=false
+numlock-state=true
 
 [desktop/peripherals/touchpad]
 send-events='enabled'
@@ -232,7 +232,7 @@ initial-stations-loaded=true
 locations=['file://HOME_PLACEHOLDER/Music']
 
 [settings-daemon/plugins/color]
-night-light-enabled=false
+night-light-enabled=true
 night-light-schedule-automatic=false
 night-light-schedule-from=6.0
 night-light-temperature=uint32 4546
@@ -249,7 +249,7 @@ sleep-inactive-battery-timeout=1200
 app-picker-layout=[{'software-properties-drivers.desktop': <{'position': <0>}>, 'antigravity.desktop': <{'position': <1>}>, 'bruno.desktop': <{'position': <2>}>, 'snap-store_snap-store.desktop': <{'position': <3>}>, 'org.gnome.clocks.desktop': <{'position': <4>}>, 'org.gnome.Calendar.desktop': <{'position': <5>}>, 'org.gnome.Snapshot.desktop': <{'position': <6>}>, 'org.gnome.Totem.desktop': <{'position': <7>}>, 'org.gnome.Calculator.desktop': <{'position': <8>}>, 'org.corectrl.corectrl.desktop': <{'position': <9>}>, 'simple-scan.desktop': <{'position': <10>}>, 'org.gnome.Settings.desktop': <{'position': <11>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <12>}>, 'firefox_firefox.desktop': <{'position': <13>}>, 'org.gnome.Terminal.desktop': <{'position': <14>}>, 'Utilities': <{'position': <15>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <16>}>, 'yelp.desktop': <{'position': <17>}>, 'org.gnome.eog.desktop': <{'position': <18>}>, 'gnome-language-selector.desktop': <{'position': <19>}>, 'libreoffice-startcenter.desktop': <{'position': <20>}>, 'libreoffice-calc.desktop': <{'position': <21>}>, 'libreoffice-draw.desktop': <{'position': <22>}>, 'libreoffice-impress.desktop': <{'position': <23>}>}, {'libreoffice-math.desktop': <{'position': <0>}>, 'libreoffice-writer.desktop': <{'position': <1>}>, 'postman_postman.desktop': <{'position': <2>}>, 'org.gnome.PowerStats.desktop': <{'position': <3>}>, 'org.remmina.Remmina.desktop': <{'position': <4>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <5>}>, 'org.gnome.Shotwell.desktop': <{'position': <6>}>, 'software-properties-gtk.desktop': <{'position': <7>}>, 'update-manager.desktop': <{'position': <8>}>, 'gnome-session-properties.desktop': <{'position': <9>}>, 'usb-creator-gtk.desktop': <{'position': <10>}>, 'org.gnome.TextEditor.desktop': <{'position': <11>}>, 'thunderbird_thunderbird.desktop': <{'position': <12>}>, 'transmission-gtk.desktop': <{'position': <13>}>, 'org.wireshark.Wireshark.desktop': <{'position': <14>}>, 'Zoom.desktop': <{'position': <15>}>}]
 disable-user-extensions=false
 disabled-extensions=['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com', 'just-perfection-desktop@just-perfection', 'lockscreen-extension@pratap.fastmail.fm']
-enabled-extensions=['ding@rastersoft.com', 'tiling-assistant@ubuntu.com', 'dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx', 'clipboard-indicator@tudmotu.com', 'system-monitor-next@paradoxxx.zero.gmail.com', 'Battery-Health-Charging@maniacx.github.com', 'lockkeys@vaina.lt', 'mediacontrols@cliffniff.github.com']
+enabled-extensions=['ding@rastersoft.com', 'tiling-assistant@ubuntu.com', 'dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx', 'clipboard-indicator@tudmotu.com', 'Battery-Health-Charging@maniacx.github.com', 'mediacontrols@cliffniff.github.com', 'lockkeys@vaina.lt', 'system-monitor-next@paradoxxx.zero.gmail.com']
 favorite-apps=['org.gnome.Nautilus.desktop', 'discord_discord.desktop', 'code_code.desktop', 'google-chrome.desktop', 'spotify_spotify.desktop']
 last-selected-power-profile='power-saver'
 welcome-dialog-last-shown-version='46.0'
@@ -608,7 +608,7 @@ memory-show-text=true
 memory-style='digit'
 move-clock=false
 net-collisions-color='#ff0000'
-net-display=true
+net-display=false
 net-down-color='#fce94f'
 net-downerrors-color='#ff6e00'
 net-graph-width=100
