@@ -12,7 +12,7 @@ show_menu() {
 
 ================ linux-config manager ================
 1) Setup base (apt + Docker + NVM/Node + Git profile)
-2) Setup shell & UI (Zsh + Oh My Zsh + P10k + dconf)
+2) Setup shell & UI (Starship + terminal/UI por componentes)
 3) Backup configs y push a git
 0) Salir
 ======================================================

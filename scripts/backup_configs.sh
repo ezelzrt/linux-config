@@ -154,14 +154,15 @@ select_or_create_profile() {
 backup_dotfiles() {
   local profile_name="$1"
   local dotfiles_dir="$ROOT_DIR/profiles/$profile_name/dotfiles"
+  local dotconfig_dir="$dotfiles_dir/.config"
 
-  log_section "Backup dotfiles → perfil '$profile_name'"
-  mkdir -p "$dotfiles_dir"
+  log_section "Backup [TERMINAL] dotfiles → perfil '$profile_name'"
+  mkdir -p "$dotfiles_dir" "$dotconfig_dir"
 
   copy_if_exists "$HOME/.zshrc"    "$dotfiles_dir/.zshrc"
-  copy_if_exists "$HOME/.p10k.zsh" "$dotfiles_dir/.p10k.zsh"
   copy_if_exists "$HOME/.bashrc"   "$dotfiles_dir/.bashrc"
   copy_if_exists "$HOME/.profile"  "$dotfiles_dir/.profile"
+  copy_if_exists "$HOME/.config/starship.toml" "$dotconfig_dir/starship.toml"
 }
 
 backup_dconf() {

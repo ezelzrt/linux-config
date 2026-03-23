@@ -19,8 +19,8 @@ window-size=(360, 503)
 word-size=64
 
 [control-center]
-last-panel='wifi'
-window-state=(980, 640, false)
+last-panel='ubuntu'
+window-state=(892, 640, false)
 
 [deja-dup]
 backend='google'
@@ -69,16 +69,22 @@ gtk-theme='Yaru-blue-dark'
 icon-theme='Yaru-blue'
 
 [desktop/notifications]
-application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup', 'code-code']
+application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup', 'code-code', 'firefox-firefox', 'chrome-hnpfjngllnobngcgfapefoaidbinmjnm-default']
 
 [desktop/notifications/application/antigravity]
 application-id='antigravity.desktop'
+
+[desktop/notifications/application/chrome-hnpfjngllnobngcgfapefoaidbinmjnm-default]
+application-id='chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop'
 
 [desktop/notifications/application/code-code]
 application-id='code_code.desktop'
 
 [desktop/notifications/application/discord-discord]
 application-id='discord_discord.desktop'
+
+[desktop/notifications/application/firefox-firefox]
+application-id='firefox_firefox.desktop'
 
 [desktop/notifications/application/gnome-power-panel]
 application-id='gnome-power-panel.desktop'
@@ -134,7 +140,7 @@ idle-delay=uint32 900
 button-layout=':minimize,maximize,close'
 
 [eog/ui]
-sidebar=false
+sidebar=true
 
 [evince/default]
 continuous=true
@@ -146,8 +152,9 @@ inverted-colors=false
 show-sidebar=true
 sidebar-page='thumbnails'
 sidebar-size=182
-sizing-mode='automatic'
-window-ratio=(1.4122586062132663, 1.0709409591107657)
+sizing-mode='free'
+window-ratio=(1.4122482281510886, 1.0706602844332584)
+zoom=0.84089642763137817
 
 [evolution-data-server]
 migrated=true
@@ -172,7 +179,7 @@ show-whose-processes='user'
 [gnome-system-monitor/disktreenew]
 col-6-visible=true
 col-6-width=0
-columns-order=[6]
+columns-order=[5]
 sort-col=1
 sort-order=0
 
@@ -191,11 +198,22 @@ search-filter-time-type='last_modified'
 [nautilus/window-state]
 initial-size=(890, 550)
 
+[nm-applet/eap/b5562512-1e75-3e1e-a2b0-8826396a83f6]
+ignore-ca-cert=false
+ignore-phase2-ca-cert=false
+
+[nm-applet/eap/e7eb76e7-2a49-3746-8a27-6e7b9883fa26]
+ignore-ca-cert=false
+ignore-phase2-ca-cert=false
+
 [portal/filechooser/com.google.Chrome]
-last-folder-path='HOME_PLACEHOLDER/Downloads'
+last-folder-path='HOME_PLACEHOLDER/Pictures/Screenshots'
 
 [portal/filechooser/org.gnome.Settings]
 last-folder-path='HOME_PLACEHOLDER/Downloads/drive-download-20260131T195415Z-3-001'
+
+[portal/filechooser/snap.firefox]
+last-folder-path='HOME_PLACEHOLDER/appubaderecho-front-/app/acceso'
 
 [power-manager]
 info-history-type='charge'
@@ -215,11 +233,11 @@ sleep-inactive-ac-timeout=3600
 sleep-inactive-ac-type='suspend'
 
 [shell]
-app-picker-layout=[{'software-properties-drivers.desktop': <{'position': <0>}>, 'antigravity.desktop': <{'position': <1>}>, 'bruno.desktop': <{'position': <2>}>, 'snap-store_snap-store.desktop': <{'position': <3>}>, 'org.gnome.clocks.desktop': <{'position': <4>}>, 'org.gnome.Calendar.desktop': <{'position': <5>}>, 'org.gnome.Snapshot.desktop': <{'position': <6>}>, 'org.gnome.Totem.desktop': <{'position': <7>}>, 'org.gnome.Calculator.desktop': <{'position': <8>}>, 'org.corectrl.corectrl.desktop': <{'position': <9>}>, 'simple-scan.desktop': <{'position': <10>}>, 'org.gnome.Settings.desktop': <{'position': <11>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <12>}>, 'firefox_firefox.desktop': <{'position': <13>}>, 'org.gnome.Terminal.desktop': <{'position': <14>}>, 'Utilities': <{'position': <15>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <16>}>, 'yelp.desktop': <{'position': <17>}>, 'org.gnome.eog.desktop': <{'position': <18>}>, 'gnome-language-selector.desktop': <{'position': <19>}>, '9962e3cb-fd74-48ca-9353-3f5b958738af': <{'position': <20>}>}, {'postman_postman.desktop': <{'position': <0>}>, 'org.gnome.PowerStats.desktop': <{'position': <1>}>, 'org.remmina.Remmina.desktop': <{'position': <2>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <3>}>, 'org.gnome.Shotwell.desktop': <{'position': <4>}>, 'software-properties-gtk.desktop': <{'position': <5>}>, 'update-manager.desktop': <{'position': <6>}>, 'gnome-session-properties.desktop': <{'position': <7>}>, 'usb-creator-gtk.desktop': <{'position': <8>}>, 'org.gnome.TextEditor.desktop': <{'position': <9>}>, 'thunderbird_thunderbird.desktop': <{'position': <10>}>, 'transmission-gtk.desktop': <{'position': <11>}>, 'org.wireshark.Wireshark.desktop': <{'position': <12>}>, 'Zoom.desktop': <{'position': <13>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <14>}>, 'info.desktop': <{'position': <15>}>}]
+app-picker-layout=[{'snap-store_snap-store.desktop': <{'position': <0>}>, 'org.gnome.Settings.desktop': <{'position': <1>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <2>}>, 'org.gnome.Terminal.desktop': <{'position': <3>}>, 'bruno.desktop': <{'position': <4>}>, 'postman_postman.desktop': <{'position': <5>}>, 'org.wireshark.Wireshark.desktop': <{'position': <6>}>, 'antigravity.desktop': <{'position': <7>}>, 'fr.handbrake.ghb.desktop': <{'position': <8>}>, 'Zoom.desktop': <{'position': <9>}>, '9962e3cb-fd74-48ca-9353-3f5b958738af': <{'position': <10>}>, 'software-properties-drivers.desktop': <{'position': <11>}>, 'org.gnome.clocks.desktop': <{'position': <12>}>, 'org.gnome.Calendar.desktop': <{'position': <13>}>, 'org.gnome.Snapshot.desktop': <{'position': <14>}>, 'org.gnome.Totem.desktop': <{'position': <15>}>, 'org.gnome.Calculator.desktop': <{'position': <16>}>, 'org.corectrl.corectrl.desktop': <{'position': <17>}>, 'simple-scan.desktop': <{'position': <18>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <19>}>, 'firefox_firefox.desktop': <{'position': <20>}>, 'Utilities': <{'position': <21>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <22>}>, 'yelp.desktop': <{'position': <23>}>}, {'org.gnome.eog.desktop': <{'position': <0>}>, 'gnome-language-selector.desktop': <{'position': <1>}>, 'org.gnome.PowerStats.desktop': <{'position': <2>}>, 'org.remmina.Remmina.desktop': <{'position': <3>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <4>}>, 'org.gnome.Shotwell.desktop': <{'position': <5>}>, 'software-properties-gtk.desktop': <{'position': <6>}>, 'update-manager.desktop': <{'position': <7>}>, 'gnome-session-properties.desktop': <{'position': <8>}>, 'usb-creator-gtk.desktop': <{'position': <9>}>, 'org.gnome.TextEditor.desktop': <{'position': <10>}>, 'thunderbird_thunderbird.desktop': <{'position': <11>}>, 'transmission-gtk.desktop': <{'position': <12>}>, 'info.desktop': <{'position': <13>}>}]
 disable-user-extensions=false
-disabled-extensions=['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com', 'just-perfection-desktop@just-perfection', 'lockscreen-extension@pratap.fastmail.fm']
+disabled-extensions=['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com', 'lockscreen-extension@pratap.fastmail.fm', 'just-perfection-desktop@just-perfection']
 enabled-extensions=['ding@rastersoft.com', 'tiling-assistant@ubuntu.com', 'dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx', 'clipboard-indicator@tudmotu.com', 'system-monitor-next@paradoxxx.zero.gmail.com']
-favorite-apps=['org.gnome.Nautilus.desktop', 'discord_discord.desktop', 'code_code.desktop', 'google-chrome.desktop', 'spotify_spotify.desktop']
+favorite-apps=['org.gnome.Nautilus.desktop', 'chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop', 'discord_discord.desktop', 'code_code.desktop', 'google-chrome.desktop', 'spotify_spotify.desktop']
 last-selected-power-profile='power-saver'
 welcome-dialog-last-shown-version='46.0'
 
@@ -384,7 +402,7 @@ scroll-panel-delay=100
 shift-click-action='MINIMIZE'
 shift-middle-click-action='LAUNCH'
 shortcut-num-keys='NUM_KEYPAD'
-show-apps-icon-file='HOME_PLACEHOLDER/linux-config/img/Boca_escudo.png'
+show-apps-icon-file='HOME_PLACEHOLDER/Pictures/Boca_escudo.png'
 show-apps-icon-side-padding=10
 show-apps-override-escape=true
 show-favorites=true
@@ -400,13 +418,13 @@ stockgs-keep-dash=false
 stockgs-keep-top-panel=false
 stockgs-panelbtn-click-only=false
 taskbar-locked=false
-trans-border-custom-color='rgba(200,200,200,0.2)'
+trans-border-custom-color='rgba(255,255,255,0.0862745)'
 trans-border-use-custom-color=true
 trans-border-width=1
-trans-gradient-bottom-color='#000000'
-trans-gradient-bottom-opacity=0.0
+trans-gradient-bottom-color='#a51d2d'
+trans-gradient-bottom-opacity=0.25
 trans-gradient-top-color='#1a5fb4'
-trans-gradient-top-opacity=0.29999999999999999
+trans-gradient-top-opacity=0.90000000000000002
 trans-use-border=true
 trans-use-custom-gradient=true
 trans-use-custom-opacity=false
@@ -419,6 +437,7 @@ window-preview-title-position='TOP'
 [shell/extensions/ding]
 check-x11wayland=true
 icon-size='standard'
+start-corner='top-left'
 
 [shell/extensions/just-perfection]
 accessibility-menu=true
@@ -591,15 +610,32 @@ library-maximize=false
 library-width=1024
 
 [terminal/legacy/profiles:]
-list=['b1dcc9dd-5262-4d8d-a863-c897e6d979b9', 'e4826db3-c926-44dc-9668-5e57053b9010']
+default='d7d9c9a4-58ae-48df-8f4d-dc94097c46f7'
+list=['b1dcc9dd-5262-4d8d-a863-c897e6d979b9', 'e4826db3-c926-44dc-9668-5e57053b9010', 'd7d9c9a4-58ae-48df-8f4d-dc94097c46f7']
 
 [terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
 background-color='rgb(0,43,54)'
+cell-height-scale=1.0
 font='MesloLGS NF 12'
 foreground-color='rgb(131,148,150)'
 use-system-font=false
 use-theme-colors=false
 visible-name='P1'
+
+[terminal/legacy/profiles:/:d7d9c9a4-58ae-48df-8f4d-dc94097c46f7]
+audible-bell=false
+background-color='rgb(12,12,12)'
+bold-color-same-as-fg=true
+cell-height-scale=1.05
+cursor-colors-set=false
+cursor-shape='block'
+font='MesloLGS NF 12'
+foreground-color='rgb(170,170,170)'
+highlight-colors-set=false
+palette=['rgb(46,52,54)', 'rgb(204,0,0)', 'rgb(78,154,6)', 'rgb(196,160,0)', 'rgb(52,101,164)', 'rgb(117,80,123)', 'rgb(6,152,154)', 'rgb(211,215,207)', 'rgb(85,87,83)', 'rgb(239,41,41)', 'rgb(138,226,52)', 'rgb(252,233,79)', 'rgb(114,159,207)', 'rgb(173,127,168)', 'rgb(52,226,226)', 'rgb(238,238,236)']
+use-system-font=false
+use-theme-colors=false
+visible-name='P3'
 
 [terminal/legacy/profiles:/:e4826db3-c926-44dc-9668-5e57053b9010]
 background-color='rgb(46,52,54)'

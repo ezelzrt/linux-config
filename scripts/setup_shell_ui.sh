@@ -48,7 +48,6 @@ ask_yes_no() {
 backup_if_needed() {
   local target="$1"
   if [[ -e "$target" ]]; then
-    # Respaldar tanto archivos reales como symlinks viejos
     local bak="$target.bak.$(date +%Y%m%d%H%M%S)"
     cp -rL "$target" "$bak"
     log_info "Backup local creado: ${C_DIM}$(basename "$bak")${C_RESET}"
@@ -58,30 +57,31 @@ backup_if_needed() {
 copy_dotfile() {
   local source="$1"
   local target="$2"
+
   if [[ ! -f "$source" ]]; then
     log_warn "No encontrado en repo: ${C_DIM}$source${C_RESET}"
     return
   fi
-  # Si el target actual es un symlink (al repo), eliminarlo primero para crear copia real
+
+  mkdir -p "$(dirname "$target")"
+
   if [[ -L "$target" ]]; then
     rm "$target"
   fi
+
   backup_if_needed "$target"
   cp "$source" "$target"
   log_ok "Copiado: ${C_DIM}$(basename "$source")${C_RESET} → ${C_DIM}$target${C_RESET}"
 }
 
 # ── Selección de perfil ────────────────────────────────────────────────────────
-# Devuelve en stdout el path absoluto al directorio del perfil elegido.
-# Si no hay perfiles usa fallback al root (ROOT_DIR).
-# Toda la salida al usuario va a stderr.
 select_profile() {
   local profiles_dir="$ROOT_DIR/profiles"
 
   local -a existing=()
   if [[ -d "$profiles_dir" ]]; then
     while IFS= read -r -d '' d; do
-      if [[ -f "$d/dconf/gnome-settings.dconf" || -f "$d/dconf/gnome-extensions.dconf" ]]; then
+      if [[ -f "$d/dconf/gnome-settings.dconf" || -f "$d/dconf/gnome-extensions.dconf" || -d "$d/dotfiles" ]]; then
         existing+=("$d")
       fi
     done < <(find "$profiles_dir" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
@@ -90,11 +90,11 @@ select_profile() {
   log_section "Selección de perfil"
 
   if [[ ${#existing[@]} -eq 0 ]]; then
-    if [[ -f "$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf" ]]; then
+    if [[ -d "$ROOT_DIR/profiles/default" ]]; then
       log_warn "No hay perfiles. Usando perfil por defecto (profiles/default/)."
       echo "$ROOT_DIR/profiles/default"
     else
-      log_error "No hay perfiles ni configuración por defecto. Saltando configuración GNOME."
+      log_error "No hay perfiles ni configuración por defecto."
       echo ""
     fi
     return
@@ -115,7 +115,7 @@ select_profile() {
   done
 
   while true; do
-    echo -en "  ${C_BOLD}?${C_RESET}  Elegí el número de perfil a restaurar: " >&2
+    echo -en "  ${C_BOLD}?${C_RESET}  Elegí el número de perfil que querés aplicar por componentes: " >&2
     read -r answer
     if [[ "$answer" =~ ^[0-9]+$ ]]; then
       local idx=$(( answer - 1 ))
@@ -130,7 +130,6 @@ select_profile() {
   done
 }
 
-# ── Etiqueta de sección con perfil ────────────────────────────────────────────
 profile_label() {
   local profile_dir="$1"
   if [[ -n "$profile_dir" ]]; then
@@ -140,18 +139,64 @@ profile_label() {
   fi
 }
 
-# ── 1. Zsh + Oh My Zsh + Powerlevel10k + MesloLGS NF ─────────────────────────
-install_zsh_stack() {
-  log_section "Zsh + Oh My Zsh + Powerlevel10k + MesloLGS NF"
-  if ! ask_yes_no "¿Instalar stack Zsh completo (zsh, Oh My Zsh, P10k, fuentes)?" "Y"; then
+resolve_profile_file() {
+  local profile_dir="$1"
+  local rel_path="$2"
+  local profile_candidate="$profile_dir/$rel_path"
+  local fallback_candidate="$ROOT_DIR/profiles/default/$rel_path"
+
+  if [[ -n "$profile_dir" && -f "$profile_candidate" ]]; then
+    echo "$profile_candidate"
+  elif [[ -f "$fallback_candidate" ]]; then
+    echo "$fallback_candidate"
+  else
+    echo ""
+  fi
+}
+
+resolve_dotfiles_dir() {
+  local profile_dir="$1"
+  if [[ -n "$profile_dir" && -d "$profile_dir/dotfiles" ]]; then
+    echo "$profile_dir/dotfiles"
+  elif [[ -d "$ROOT_DIR/profiles/default/dotfiles" ]]; then
+    echo "$ROOT_DIR/profiles/default/dotfiles"
+  else
+    echo ""
+  fi
+}
+
+migrate_zshrc_for_starship() {
+  local zshrc="$HOME/.zshrc"
+  [[ -f "$zshrc" ]] || return
+
+  if grep -Eq 'powerlevel10k/powerlevel10k|\.p10k\.zsh|p10k-instant-prompt' "$zshrc"; then
+    sed -i \
+      -e '/p10k-instant-prompt-.*\.zsh/,/^fi$/d' \
+      -e 's/^ZSH_THEME="powerlevel10k\/powerlevel10k"/ZSH_THEME=""/' \
+      -e '/\.p10k\.zsh/d' \
+      "$zshrc"
+    log_info "Se ajustó ~/.zshrc para compatibilidad con Starship."
+  fi
+
+  if ! grep -q 'starship init zsh' "$zshrc"; then
+    {
+      printf "\n"
+      printf "# Inicializar Starship\n"
+      printf "eval \"\$(starship init zsh)\"\n"
+    } >> "$zshrc"
+    log_info "Se agregó inicialización de Starship al final de ~/.zshrc"
+  fi
+}
+
+install_terminal_stack() {
+  log_section "[TERMINAL] Stack base (Zsh + Oh My Zsh + plugins + Starship)"
+  if ! ask_yes_no "[TERMINAL] ¿Instalar stack base de terminal (zsh, Oh My Zsh, plugins, Starship)?" "Y"; then
     return
   fi
 
-  # ── Paquetes base ────────────────────────────────────────────────────────
   sudo apt update -q
   sudo apt install -y zsh git curl wget unzip
 
-  # ── Oh My Zsh ────────────────────────────────────────────────────────────
   if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     log_info "Instalando Oh My Zsh..."
     RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -160,16 +205,6 @@ install_zsh_stack() {
     log_skip "Oh My Zsh"
   fi
 
-  # ── Powerlevel10k ────────────────────────────────────────────────────────
-  if [[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]]; then
-    log_info "Clonando Powerlevel10k..."
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
-    log_ok "Powerlevel10k instalado."
-  else
-    log_skip "Powerlevel10k"
-  fi
-
-  # ── Plugins ──────────────────────────────────────────────────────────────
   if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
     log_info "Clonando zsh-autosuggestions..."
     git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
@@ -186,133 +221,205 @@ install_zsh_stack() {
     log_skip "zsh-syntax-highlighting"
   fi
 
-  # ── Fuentes MesloLGS NF ──────────────────────────────────────────────────
-  local font_dir="$HOME/.local/share/fonts"
-  mkdir -p "$font_dir"
-  local -A fonts=(
-    ["MesloLGS NF Regular.ttf"]="MesloLGS%20NF%20Regular.ttf"
-    ["MesloLGS NF Bold.ttf"]="MesloLGS%20NF%20Bold.ttf"
-    ["MesloLGS NF Italic.ttf"]="MesloLGS%20NF%20Italic.ttf"
-    ["MesloLGS NF Bold Italic.ttf"]="MesloLGS%20NF%20Bold%20Italic.ttf"
-  )
-  local fonts_installed=0
-  for name in "${!fonts[@]}"; do
-    if [[ -f "$font_dir/$name" ]]; then
-      log_skip "Fuente $name"
-    else
-      log_info "Descargando $name..."
-      wget -q -O "$font_dir/$name" "https://github.com/romkatv/powerlevel10k-media/raw/master/${fonts[$name]}"
-      log_ok "Fuente $name"
-      (( fonts_installed++ )) || true
-    fi
-  done
-  if (( fonts_installed > 0 )); then
-    fc-cache -fv >/dev/null
-    log_ok "Cache de fuentes actualizado."
+  if command -v starship >/dev/null 2>&1; then
+    log_skip "Starship"
+  else
+    log_info "Instalando Starship..."
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+    log_ok "Starship instalado."
   fi
-  log_warn "Recordá seleccionar 'MesloLGS NF' como fuente en tu terminal."
 
-  # ── Shell por defecto ────────────────────────────────────────────────────
-  if ask_yes_no "¿Cambiar shell por defecto a zsh?" "Y"; then
+  if ask_yes_no "[TERMINAL] ¿Cambiar shell por defecto a zsh?" "Y"; then
     chsh -s "$(command -v zsh)"
     log_ok "Shell por defecto cambiado a zsh."
   fi
 }
 
-# ── 2. Dotfiles + dconf del perfil ────────────────────────────────────────────
-apply_profile_config() {
+apply_terminal_dotfiles() {
   local profile_dir="$1"
   local label
   label="$(profile_label "$profile_dir")"
 
-  log_section "Dotfiles + configuración GNOME${label}"
+  log_section "[TERMINAL] Dotfiles${label}"
 
   if [[ -z "$profile_dir" ]]; then
-    log_warn "Sin perfil seleccionado. Saltando dotfiles y dconf."
+    log_warn "Sin perfil seleccionado. Saltando dotfiles de terminal."
     return
   fi
 
-  if ! ask_yes_no "¿Aplicar dotfiles y configuración GNOME del perfil $(basename "$profile_dir")?" "Y"; then
+  if ! ask_yes_no "[TERMINAL] ¿Aplicar dotfiles del perfil $(basename "$profile_dir")? (.zshrc, .bashrc, .profile)" "Y"; then
     return
   fi
 
-  # ── Dotfiles: desde el perfil, con fallback a profiles/default/dotfiles/ ────
   local dotfiles_src
-  if [[ "$profile_dir" != "$ROOT_DIR" && -d "$profile_dir/dotfiles" ]]; then
-    dotfiles_src="$profile_dir/dotfiles"
+  dotfiles_src="$(resolve_dotfiles_dir "$profile_dir")"
+
+  if [[ -z "$dotfiles_src" ]]; then
+    log_warn "No hay directorio de dotfiles en el perfil ni en fallback default."
+    return
+  fi
+
+  if [[ "$dotfiles_src" == "$profile_dir/dotfiles" ]]; then
     log_info "Dotfiles desde perfil: ${C_DIM}$dotfiles_src${C_RESET}"
   else
-    dotfiles_src="$ROOT_DIR/profiles/default/dotfiles"
     log_warn "Perfil sin dotfiles propios. Usando fallback: ${C_DIM}$dotfiles_src${C_RESET}"
   fi
-  copy_dotfile "$dotfiles_src/.zshrc"    "$HOME/.zshrc"
-  copy_dotfile "$dotfiles_src/.p10k.zsh" "$HOME/.p10k.zsh"
-  copy_dotfile "$dotfiles_src/.bashrc"   "$HOME/.bashrc"
-  copy_dotfile "$dotfiles_src/.profile"  "$HOME/.profile"
 
-  # ── Determinar archivos dconf ─────────────────────────────────────────────
-  local gnome_file ext_file
-  if [[ "$profile_dir" != "$ROOT_DIR" ]]; then
-    gnome_file="$profile_dir/dconf/gnome-settings.dconf"
-    ext_file="$profile_dir/dconf/gnome-extensions.dconf"
+  copy_dotfile "$dotfiles_src/.zshrc"  "$HOME/.zshrc"
+  copy_dotfile "$dotfiles_src/.bashrc" "$HOME/.bashrc"
+  copy_dotfile "$dotfiles_src/.profile" "$HOME/.profile"
+}
+
+apply_terminal_prompt_config() {
+  local profile_dir="$1"
+  local label
+  label="$(profile_label "$profile_dir")"
+
+  log_section "[TERMINAL] Prompt${label}"
+
+  if [[ -z "$profile_dir" ]]; then
+    log_warn "Sin perfil seleccionado. Saltando configuración de prompt."
+    return
+  fi
+
+  if ! ask_yes_no "[TERMINAL] ¿Aplicar configuración de prompt del perfil $(basename "$profile_dir")?" "Y"; then
+    return
+  fi
+
+  local starship_src legacy_p10k_src
+  starship_src="$(resolve_profile_file "$profile_dir" "dotfiles/.config/starship.toml")"
+  legacy_p10k_src="$(resolve_profile_file "$profile_dir" "dotfiles/.p10k.zsh")"
+
+  if [[ -n "$starship_src" ]]; then
+    copy_dotfile "$starship_src" "$HOME/.config/starship.toml"
+
+    migrate_zshrc_for_starship
+
+    log_ok "Configuración de Starship aplicada."
+    return
+  fi
+
+  log_warn "No se encontró dotfiles/.config/starship.toml en el perfil ni fallback default."
+
+  if [[ -n "$legacy_p10k_src" ]]; then
+    if ask_yes_no "[TERMINAL][LEGACY] ¿Aplicar configuración Powerlevel10k (.p10k.zsh) como fallback temporal?" "Y"; then
+      copy_dotfile "$legacy_p10k_src" "$HOME/.p10k.zsh"
+      log_warn "Fallback legacy aplicado (.p10k.zsh)."
+    fi
   else
-    gnome_file="$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf"
-    ext_file="$ROOT_DIR/profiles/default/dconf/gnome-extensions.dconf"
+    log_warn "Tampoco se encontró .p10k.zsh. El prompt quedará según la shell actual."
+  fi
+}
+
+detect_monitor_id() {
+  if command -v xrandr >/dev/null 2>&1; then
+    xrandr --query 2>/dev/null | awk '/ connected( primary)?/{print $1; exit}'
+  fi
+}
+
+copy_profile_images() {
+  local profile_dir="$1"
+  [[ -d "$profile_dir/img" ]] || return
+
+  local dest="$HOME/.local/share/backgrounds"
+  mkdir -p "$dest"
+
+  local img_count=0
+  while IFS= read -r f; do
+    cp "$f" "$dest/$(basename "$f")"
+    log_ok "Imagen copiada: ${C_DIM}$(basename "$f")${C_RESET}"
+    (( img_count++ )) || true
+  done < <(find "$profile_dir/img" -maxdepth 1 -type f \
+    \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \
+       -o -iname "*.webp" -o -iname "*.gif" -o -iname "*.svg" \
+       -o -iname "*.bmp" \) | sort)
+
+  if (( img_count > 0 )); then
+    log_info "$img_count imagen(es) copiada(s) a ${C_DIM}$dest${C_RESET}"
+  fi
+}
+
+apply_gnome_base_config() {
+  local profile_dir="$1"
+  local label
+  label="$(profile_label "$profile_dir")"
+
+  log_section "[UI] GNOME base${label}"
+
+  if [[ -z "$profile_dir" ]]; then
+    log_warn "Sin perfil seleccionado. Saltando GNOME base."
+    return
   fi
 
-  # ── Detectar monitor ─────────────────────────────────────────────────────
-  local monitor_id=""
-  if command -v xrandr >/dev/null 2>&1; then
-    monitor_id=$(xrandr --query 2>/dev/null | awk '/ connected( primary)?/{print $1; exit}')
+  if ! ask_yes_no "[UI] ¿Aplicar configuración GNOME base del perfil $(basename "$profile_dir")? (dconf /org/gnome/)" "Y"; then
+    return
   fi
+
+  local gnome_file
+  gnome_file="$(resolve_profile_file "$profile_dir" "dconf/gnome-settings.dconf")"
+
+  if [[ -z "$gnome_file" || ! -s "$gnome_file" ]]; then
+    log_warn "No hay contenido de GNOME base para aplicar."
+    return
+  fi
+
+  local monitor_id=""
+  monitor_id="$(detect_monitor_id || true)"
+
   if [[ -n "$monitor_id" ]]; then
     log_info "Monitor detectado: ${C_BOLD}$monitor_id${C_RESET}"
   else
-    log_warn "No se pudo detectar el monitor. La config de dash-to-panel puede no aplicar."
+    log_warn "No se pudo detectar el monitor. La config de panel puede no aplicar exactamente igual."
     monitor_id="MONITOR_PLACEHOLDER"
   fi
 
-  # ── Copiar imágenes del perfil antes de cargar dconf ─────────────────────
-  if [[ "$profile_dir" != "$ROOT_DIR" && -d "$profile_dir/img" ]]; then
-    local dest="$HOME/.local/share/backgrounds"
-    mkdir -p "$dest"
-    local img_count=0
-    while IFS= read -r f; do
-      cp "$f" "$dest/$(basename "$f")"
-      log_ok "Imagen copiada: ${C_DIM}$(basename "$f")${C_RESET}"
-      (( img_count++ )) || true
-    done < <(find "$profile_dir/img" -maxdepth 1 -type f \
-      \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \
-         -o -iname "*.webp" -o -iname "*.gif" -o -iname "*.svg" \
-         -o -iname "*.bmp" \) | sort)
-    (( img_count > 0 )) && log_info "$img_count imagen(es) copiada(s) a ${C_DIM}$dest${C_RESET}" || true
-  fi
+  copy_profile_images "$profile_dir"
 
-  # ── Cargar dconf ─────────────────────────────────────────────────────────
-  if [[ -s "$gnome_file" ]]; then
-    sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
-        -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
-        -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
-        "$gnome_file" | dconf load /org/gnome/
-    log_ok "dconf GNOME aplicado."
-  else
-    log_warn "No hay contenido en $(basename "$gnome_file")"
-  fi
+  sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
+      -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
+      -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
+      "$gnome_file" | dconf load /org/gnome/
 
-  if [[ -s "$ext_file" ]]; then
-    sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
-        -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
-        -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
-        "$ext_file" | dconf load /org/gnome/shell/extensions/
-    log_ok "dconf extensiones aplicado."
-  else
-    log_warn "No hay contenido en $(basename "$ext_file")"
-  fi
-
+  log_ok "dconf GNOME base aplicado."
   log_warn "Cerrá y volvé a abrir sesión para que los cambios de GNOME Shell surtan efecto."
 }
 
-# ── Helper: leer extensiones habilitadas desde gnome-settings.dconf ──────────
+apply_gnome_extensions_config() {
+  local profile_dir="$1"
+  local label
+  label="$(profile_label "$profile_dir")"
+
+  log_section "[UI] GNOME extensiones (config)${label}"
+
+  if [[ -z "$profile_dir" ]]; then
+    log_warn "Sin perfil seleccionado. Saltando configuración dconf de extensiones."
+    return
+  fi
+
+  if ! ask_yes_no "[UI] ¿Aplicar configuración dconf de extensiones del perfil $(basename "$profile_dir")? (dconf /org/gnome/shell/extensions/)" "Y"; then
+    return
+  fi
+
+  local ext_file
+  ext_file="$(resolve_profile_file "$profile_dir" "dconf/gnome-extensions.dconf")"
+
+  if [[ -z "$ext_file" || ! -s "$ext_file" ]]; then
+    log_warn "No hay contenido de extensiones GNOME para aplicar."
+    return
+  fi
+
+  local monitor_id=""
+  monitor_id="$(detect_monitor_id || true)"
+  [[ -n "$monitor_id" ]] || monitor_id="MONITOR_PLACEHOLDER"
+
+  sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
+      -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
+      -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
+      "$ext_file" | dconf load /org/gnome/shell/extensions/
+
+  log_ok "dconf de extensiones aplicado."
+}
+
 parse_enabled_extensions() {
   local settings_file="$1"
   [[ -f "$settings_file" ]] || return
@@ -322,22 +429,23 @@ parse_enabled_extensions() {
     | grep -v "^$"
 }
 
-# ── 3. Extensiones GNOME ──────────────────────────────────────────────────────
 install_gnome_extensions() {
   local profile_dir="$1"
   local label
   label="$(profile_label "$profile_dir")"
 
-  log_section "Extensiones GNOME${label}"
+  log_section "[UI] Instalación de extensiones GNOME${label}"
 
-  # ── Obtener lista de extensiones del perfil ───────────────────────────────
+  if [[ -z "$profile_dir" ]]; then
+    log_warn "Sin perfil seleccionado. Saltando instalación de extensiones GNOME."
+    return
+  fi
+
   local -a extensions=()
   local settings_file=""
 
-  if [[ -n "$profile_dir" && "$profile_dir" != "$ROOT_DIR" && -f "$profile_dir/dconf/gnome-settings.dconf" ]]; then
-    settings_file="$profile_dir/dconf/gnome-settings.dconf"
-  elif [[ -f "$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf" ]]; then
-    settings_file="$ROOT_DIR/profiles/default/dconf/gnome-settings.dconf"
+  if [[ -n "$profile_dir" ]]; then
+    settings_file="$(resolve_profile_file "$profile_dir" "dconf/gnome-settings.dconf")"
   fi
 
   if [[ -n "$settings_file" ]]; then
@@ -346,7 +454,6 @@ install_gnome_extensions() {
     done < <(parse_enabled_extensions "$settings_file")
   fi
 
-  # Fallback a lista hardcodeada
   if [[ ${#extensions[@]} -eq 0 ]]; then
     log_warn "No se encontraron extensiones en el perfil. Usando lista por defecto."
     extensions=(
@@ -359,15 +466,13 @@ install_gnome_extensions() {
     )
   fi
 
-  # ── Mostrar lista y preguntar ─────────────────────────────────────────────
-  log_info "Extensiones a instalar (${#extensions[@]}):"
+  log_info "Extensiones candidatas (${#extensions[@]}):"
   printf "    ${C_DIM}- %s${C_RESET}\n" "${extensions[@]}"
 
-  if ! ask_yes_no "¿Instalar las extensiones GNOME listadas?" "Y"; then
+  if ! ask_yes_no "[UI] ¿Instalar extensiones GNOME definidas para el perfil $(basename "$profile_dir")?" "Y"; then
     return
   fi
 
-  # ── Dependencias apt ─────────────────────────────────────────────────────
   log_info "Verificando dependencias del sistema..."
   local -a ext_deps=(gir1.2-gtop-2.0)
   local -a missing_deps=()
@@ -383,7 +488,6 @@ install_gnome_extensions() {
     log_ok "Dependencias instaladas: ${missing_deps[*]}"
   fi
 
-  # ── Instalar gext via pipx ────────────────────────────────────────────────
   if ! command -v gext >/dev/null 2>&1; then
     log_info "Instalando gnome-extensions-cli (gext) via pipx..."
     if ! command -v pipx >/dev/null 2>&1; then
@@ -401,7 +505,6 @@ install_gnome_extensions() {
     return
   fi
 
-  # ── Instalar extensiones ──────────────────────────────────────────────────
   for uuid in "${extensions[@]}"; do
     if gnome-extensions info "$uuid" >/dev/null 2>&1; then
       log_skip "$uuid"
@@ -418,23 +521,19 @@ install_gnome_extensions() {
   log_warn "Si alguna extensión no aparece activa, cerrá y volvé a abrir sesión."
 }
 
-# ── Main ──────────────────────────────────────────────────────────────────────
 main() {
   echo -e "\n${C_CYAN}${C_BOLD}════════════════════════════════════${C_RESET}"
   echo -e "${C_CYAN}${C_BOLD}   Setup Shell & UI${C_RESET}"
   echo -e "${C_CYAN}${C_BOLD}════════════════════════════════════${C_RESET}"
 
-  # 1. Elegir perfil primero — todo lo que sigue queda atado a él
   local profile_dir
   profile_dir="$(select_profile)"
 
-  # 2. Stack Zsh completo (zsh + OMZ + P10k + fuentes)
-  install_zsh_stack
-
-  # 3. Dotfiles + dconf del perfil (una sola pregunta)
-  apply_profile_config "$profile_dir"
-
-  # 4. Extensiones GNOME (lista del perfil + confirmación)
+  install_terminal_stack
+  apply_terminal_dotfiles "$profile_dir"
+  apply_terminal_prompt_config "$profile_dir"
+  apply_gnome_base_config "$profile_dir"
+  apply_gnome_extensions_config "$profile_dir"
   install_gnome_extensions "$profile_dir"
 
   echo -e "\n${C_GREEN}${C_BOLD}✔ Setup shell/UI finalizado.${C_RESET}\n"

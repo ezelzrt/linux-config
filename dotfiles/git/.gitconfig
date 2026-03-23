@@ -3,3 +3,5 @@
 	name = ezelzrt
 [init]
 	defaultBranch = main
+[pager]
+	branch = false
