@@ -39,7 +39,7 @@ ZSH_THEME=""
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -130,11 +130,11 @@ export PATH="$PATH:/usr/local/go/bin"
 export EDITOR=nano
 
 # Cargar functions
-source ~/.zsh_funcs/.docker_funcs.zsh
+source ~/.zsh_funcs/.funcs.zsh
 
 
 # Imprimir info del sistema al iniciar
-fastfetch
+# fastfetch
 
 # Inicializar Starship
 eval "$(starship init zsh)"
