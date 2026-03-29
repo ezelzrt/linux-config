@@ -74,6 +74,54 @@ copy_dotfile() {
   log_ok "Copiado: ${C_DIM}$(basename "$source")${C_RESET} → ${C_DIM}$target${C_RESET}"
 }
 
+copy_dotdir() {
+  local source="$1"
+  local target="$2"
+
+  if [[ ! -d "$source" ]]; then
+    log_warn "No encontrado en repo: ${C_DIM}$source${C_RESET}"
+    return
+  fi
+
+  mkdir -p "$(dirname "$target")"
+
+  if [[ -d "$target" ]] && diff -qr "$source" "$target" >/dev/null 2>&1; then
+    log_skip "$(basename "$source")"
+    return
+  fi
+
+  backup_if_needed "$target"
+
+  if [[ -L "$target" || -f "$target" ]]; then
+    rm -f "$target"
+  elif [[ -d "$target" ]]; then
+    rm -rf "$target"
+  fi
+
+  cp -a "$source" "$target"
+  log_ok "Copiado dir: ${C_DIM}$(basename "$source")${C_RESET} → ${C_DIM}$target${C_RESET}"
+}
+
+has_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+is_zsh_installed() {
+  has_cmd zsh
+}
+
+is_starship_installed() {
+  has_cmd starship
+}
+
+is_kitty_installed() {
+  has_cmd kitty || [[ -x "$HOME/.local/kitty.app/bin/kitty" ]]
+}
+
+can_apply_gnome_dconf() {
+  has_cmd dconf && (has_cmd gnome-shell || [[ "${XDG_CURRENT_DESKTOP:-}" == *GNOME* || "${XDG_CURRENT_DESKTOP:-}" == *ubuntu* || "${DESKTOP_SESSION:-}" == *gnome* || "${DESKTOP_SESSION:-}" == *ubuntu* ]])
+}
+
 # ── Selección de perfil ────────────────────────────────────────────────────────
 select_profile() {
   local profiles_dir="$ROOT_DIR/profiles"
@@ -247,7 +295,7 @@ apply_terminal_dotfiles() {
     return
   fi
 
-  if ! ask_yes_no "[TERMINAL] ¿Aplicar dotfiles del perfil $(basename "$profile_dir")? (.zshrc, .bashrc, .profile)" "Y"; then
+  if ! ask_yes_no "[TERMINAL] ¿Aplicar dotfiles del perfil $(basename "$profile_dir")? (.zshrc, .bashrc, .profile, kitty, xdg-terminals.list, .zsh_funcs)" "Y"; then
     return
   fi
 
@@ -265,9 +313,22 @@ apply_terminal_dotfiles() {
     log_warn "Perfil sin dotfiles propios. Usando fallback: ${C_DIM}$dotfiles_src${C_RESET}"
   fi
 
-  copy_dotfile "$dotfiles_src/.zshrc"  "$HOME/.zshrc"
+  if is_zsh_installed; then
+    copy_dotfile "$dotfiles_src/.zshrc" "$HOME/.zshrc"
+    copy_dotdir "$dotfiles_src/.zsh_funcs" "$HOME/.zsh_funcs"
+  else
+    log_info "Zsh no está instalado. Se omiten .zshrc y .zsh_funcs"
+  fi
+
   copy_dotfile "$dotfiles_src/.bashrc" "$HOME/.bashrc"
   copy_dotfile "$dotfiles_src/.profile" "$HOME/.profile"
+
+  if is_kitty_installed; then
+    copy_dotdir "$dotfiles_src/.config/kitty" "$HOME/.config/kitty"
+    copy_dotfile "$dotfiles_src/.config/xdg-terminals.list" "$HOME/.config/xdg-terminals.list"
+  else
+    log_info "Kitty no está instalado. Se omiten kitty/ y xdg-terminals.list"
+  fi
 }
 
 apply_terminal_prompt_config() {
@@ -290,10 +351,19 @@ apply_terminal_prompt_config() {
   starship_src="$(resolve_profile_file "$profile_dir" "dotfiles/.config/starship.toml")"
   legacy_p10k_src="$(resolve_profile_file "$profile_dir" "dotfiles/.p10k.zsh")"
 
+  if ! is_starship_installed; then
+    log_info "Starship no está instalado. Se omite configuración de prompt del perfil."
+    return
+  fi
+
   if [[ -n "$starship_src" ]]; then
     copy_dotfile "$starship_src" "$HOME/.config/starship.toml"
 
-    migrate_zshrc_for_starship
+    if is_zsh_installed; then
+      migrate_zshrc_for_starship
+    else
+      log_info "Zsh no está instalado. Se aplicó starship.toml sin modificar ~/.zshrc"
+    fi
 
     log_ok "Configuración de Starship aplicada."
     return
@@ -351,6 +421,11 @@ apply_gnome_base_config() {
     return
   fi
 
+  if ! can_apply_gnome_dconf; then
+    log_info "Entorno GNOME/dconf no detectado. Se omite GNOME base."
+    return
+  fi
+
   if ! ask_yes_no "[UI] ¿Aplicar configuración GNOME base del perfil $(basename "$profile_dir")? (dconf /org/gnome/)" "Y"; then
     return
   fi
@@ -396,6 +471,11 @@ apply_gnome_extensions_config() {
     return
   fi
 
+  if ! can_apply_gnome_dconf; then
+    log_info "Entorno GNOME/dconf no detectado. Se omite dconf de extensiones."
+    return
+  fi
+
   if ! ask_yes_no "[UI] ¿Aplicar configuración dconf de extensiones del perfil $(basename "$profile_dir")? (dconf /org/gnome/shell/extensions/)" "Y"; then
     return
   fi
@@ -438,6 +518,11 @@ install_gnome_extensions() {
 
   if [[ -z "$profile_dir" ]]; then
     log_warn "Sin perfil seleccionado. Saltando instalación de extensiones GNOME."
+    return
+  fi
+
+  if ! can_apply_gnome_dconf; then
+    log_info "Entorno GNOME no detectado. Se omite instalación de extensiones GNOME."
     return
   fi
 

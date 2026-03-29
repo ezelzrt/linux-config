@@ -62,6 +62,29 @@ copy_if_exists() {
   fi
 }
 
+copy_dir_if_exists() {
+  local source="$1"
+  local target="$2"
+
+  if [[ ! -d "$source" ]]; then
+    log_skip "${C_DIM}$source${C_RESET}"
+    return
+  fi
+
+  mkdir -p "$(dirname "$target")"
+
+  if [[ ! -d "$target" ]]; then
+    cp -a "$source" "$target"
+    log_ok "Guardado dir: ${C_DIM}$(basename "$target")${C_RESET}"
+  elif diff -qr "$source" "$target" >/dev/null 2>&1; then
+    log_skip "$(basename "$source") sin cambios"
+  else
+    rm -rf "$target"
+    cp -a "$source" "$target"
+    log_ok "Actualizado dir: ${C_DIM}$(basename "$target")${C_RESET}"
+  fi
+}
+
 # ── Selección / creación de perfil ────────────────────────────────────────────
 # Imprime el nombre del perfil elegido en stdout (las demás salidas van a stderr).
 # Retorna 0 siempre; el llamador captura stdout.
@@ -163,6 +186,9 @@ backup_dotfiles() {
   copy_if_exists "$HOME/.bashrc"   "$dotfiles_dir/.bashrc"
   copy_if_exists "$HOME/.profile"  "$dotfiles_dir/.profile"
   copy_if_exists "$HOME/.config/starship.toml" "$dotconfig_dir/starship.toml"
+  copy_dir_if_exists "$HOME/.config/kitty" "$dotconfig_dir/kitty"
+  copy_if_exists "$HOME/.config/xdg-terminals.list" "$dotconfig_dir/xdg-terminals.list"
+  copy_dir_if_exists "$HOME/.zsh_funcs" "$dotfiles_dir/.zsh_funcs"
 }
 
 backup_dconf() {

@@ -76,6 +76,125 @@ install_apt_packages() {
   fi
 }
 
+install_kitty() {
+  log_section "Kitty"
+  if ! ask_yes_no "¿Instalar Kitty (instalador oficial precompilado)?" "Y"; then
+    return
+  fi
+
+  local kitty_app_dir="$HOME/.local/kitty.app"
+  local kitty_bin="$kitty_app_dir/bin/kitty"
+  local kitten_bin="$kitty_app_dir/bin/kitten"
+  local desktop_src="$kitty_app_dir/share/applications/kitty.desktop"
+  local desktop_dst="$HOME/.local/share/applications/kitty.desktop"
+  local desktop_open_src="$kitty_app_dir/share/applications/kitty-open.desktop"
+  local desktop_open_dst="$HOME/.local/share/applications/kitty-open.desktop"
+  local xdg_terminals="$HOME/.config/xdg-terminals.list"
+  local abs_home
+  abs_home="$(readlink -f "$HOME")"
+
+  if [[ -x "$kitty_bin" ]]; then
+    log_skip "Kitty"
+  else
+    log_info "Instalando Kitty..."
+    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    log_ok "Kitty instalado."
+  fi
+
+  if [[ ! -x "$kitty_bin" || ! -x "$kitten_bin" ]]; then
+    log_error "La instalación de Kitty no generó binarios esperados en $kitty_app_dir/bin."
+    return 1
+  fi
+
+  mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications" "$HOME/.config"
+
+  ln -sfn "$kitty_bin" "$HOME/.local/bin/kitty"
+  ln -sfn "$kitten_bin" "$HOME/.local/bin/kitten"
+  log_ok "Symlinks creados: ~/.local/bin/{kitty,kitten}"
+
+  if [[ -f "$desktop_src" ]]; then
+    cp "$desktop_src" "$desktop_dst"
+    log_ok "kitty.desktop copiado a ~/.local/share/applications/"
+  else
+    log_warn "No se encontró kitty.desktop en ${C_DIM}$desktop_src${C_RESET}"
+  fi
+
+  if [[ -f "$desktop_open_src" ]]; then
+    cp "$desktop_open_src" "$desktop_open_dst"
+    log_ok "kitty-open.desktop copiado a ~/.local/share/applications/"
+  else
+    log_warn "No se encontró kitty-open.desktop en ${C_DIM}$desktop_open_src${C_RESET}"
+  fi
+
+  if compgen -G "$HOME/.local/share/applications/kitty*.desktop" >/dev/null 2>&1; then
+    sed -i "s|Icon=kitty|Icon=$abs_home/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" "$HOME/.local/share/applications/kitty"*.desktop
+    sed -i "s|Exec=kitty|Exec=$abs_home/.local/kitty.app/bin/kitty|g" "$HOME/.local/share/applications/kitty"*.desktop
+    log_ok "Actualizados Exec/Icon en kitty*.desktop"
+  fi
+
+  if [[ ! -f "$xdg_terminals" ]]; then
+    printf 'kitty.desktop\n' > "$xdg_terminals"
+    log_ok "Creado ~/.config/xdg-terminals.list con kitty.desktop"
+  elif grep -qx 'kitty.desktop' "$xdg_terminals"; then
+    log_skip "xdg-terminals.list"
+  else
+    printf 'kitty.desktop\n' > "$xdg_terminals"
+    log_ok "Actualizado ~/.config/xdg-terminals.list con kitty.desktop"
+  fi
+}
+
+install_yazi() {
+  log_section "Yazi"
+  if ! ask_yes_no "¿Instalar Yazi (último release binario)?" "Y"; then
+    return
+  fi
+
+  log_info "Instalando dependencias de Yazi..."
+  sudo apt update -q
+  sudo apt install -y ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick
+  log_ok "Dependencias instaladas."
+
+  local api_url="https://api.github.com/repos/sxyazi/yazi/releases/latest"
+  local asset_url
+  asset_url="$(curl -fsSL "$api_url" | jq -r '[.assets[] | select(.name | test("x86_64-unknown-linux-gnu\\.zip$"))][0].browser_download_url')"
+
+  if [[ -z "$asset_url" || "$asset_url" == "null" ]]; then
+    log_error "No se encontró un asset x86_64-unknown-linux-gnu en el último release de Yazi."
+    return 1
+  fi
+
+  local tmp_dir archive_path extract_dir
+  tmp_dir="$(mktemp -d)"
+  archive_path="$tmp_dir/yazi.zip"
+  extract_dir=""
+
+  log_info "Descargando release: ${C_DIM}$asset_url${C_RESET}"
+  curl -fL "$asset_url" -o "$archive_path"
+
+  log_info "Descomprimiendo release..."
+  unzip -q "$archive_path" -d "$tmp_dir"
+
+  for d in "$tmp_dir"/yazi-x86_64-unknown-linux-gnu*; do
+    if [[ -d "$d" ]]; then
+      extract_dir="$d"
+      break
+    fi
+  done
+
+  if [[ -z "$extract_dir" ]]; then
+    rm -rf "$tmp_dir"
+    log_error "No se encontró el directorio extraído de Yazi."
+    return 1
+  fi
+
+  sudo mv -f "$extract_dir/yazi" /usr/local/bin/yazi
+  sudo mv -f "$extract_dir/ya" /usr/local/bin/ya
+  sudo chmod +x /usr/local/bin/yazi /usr/local/bin/ya
+
+  rm -rf "$tmp_dir"
+  log_ok "Yazi instalado en /usr/local/bin (yazi, ya)."
+}
+
 install_rustup() {
   log_section "Rust (rustup)"
   if ! ask_yes_no "¿Instalar Rust (rustup oficial)?" "N"; then
@@ -413,6 +532,8 @@ main() {
   echo -e "${C_CYAN}${C_BOLD}════════════════════════════════════${C_RESET}"
 
   install_apt_packages
+  install_kitty
+  install_yazi
   install_rustup
   install_docker
   install_nvm_node
