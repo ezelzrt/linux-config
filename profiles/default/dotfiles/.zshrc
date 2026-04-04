@@ -136,5 +136,12 @@ source ~/.zsh_funcs/.funcs.zsh
 # Imprimir info del sistema al iniciar
 # fastfetch
 
+# --- CARGA CONDICIONAL DE STARSHIP SEGÚN LA TERMINAL ---
+if [[ "$TERM" == "xterm-kitty" ]]; then
+    export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+else
+    export STARSHIP_CONFIG="$HOME/.config/starship_gnome.toml"
+fi
+
 # Inicializar Starship
 eval "$(starship init zsh)"

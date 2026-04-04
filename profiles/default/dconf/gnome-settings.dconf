@@ -25,12 +25,12 @@ window-size=(680, 670)
 word-size=8
 
 [control-center]
-last-panel='network'
+last-panel='keyboard'
 window-state=(892, 640, false)
 
 [deja-dup]
 backend='google'
-prompt-check='2026-03-02T14:58:08.446202Z'
+prompt-check='2026-04-02T15:10:16.988801Z'
 
 [desktop/app-folders]
 folder-children=['Utilities', 'YaST', 'Pardus', '9962e3cb-fd74-48ca-9353-3f5b958738af']
@@ -75,7 +75,7 @@ gtk-theme='Yaru-blue-dark'
 icon-theme='Yaru-blue'
 
 [desktop/notifications]
-application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup', 'code-code', 'firefox-firefox', 'chrome-hnpfjngllnobngcgfapefoaidbinmjnm-default', 'bruno']
+application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup', 'code-code', 'firefox-firefox', 'chrome-hnpfjngllnobngcgfapefoaidbinmjnm-default', 'bruno', 'com-mattjakeman-extensionmanager']
 
 [desktop/notifications/application/antigravity]
 application-id='antigravity.desktop'
@@ -88,6 +88,9 @@ application-id='chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Default.desktop'
 
 [desktop/notifications/application/code-code]
 application-id='code_code.desktop'
+
+[desktop/notifications/application/com-mattjakeman-extensionmanager]
+application-id='com.mattjakeman.ExtensionManager.desktop'
 
 [desktop/notifications/application/discord-discord]
 application-id='discord_discord.desktop'
@@ -185,7 +188,7 @@ window-height=480
 window-width=600
 
 [gnome-system-monitor]
-current-tab='resources'
+current-tab='processes'
 show-dependencies=false
 show-whose-processes='user'
 
@@ -220,38 +223,48 @@ ignore-ca-cert=false
 ignore-phase2-ca-cert=false
 
 [portal/filechooser/com.google.Chrome]
-last-folder-path='HOME_PLACEHOLDER/Downloads'
+last-folder-path='HOME_PLACEHOLDER/Desktop/linux-config'
 
 [portal/filechooser/org.gnome.Settings]
 last-folder-path='HOME_PLACEHOLDER/Downloads/drive-download-20260131T195415Z-3-001'
 
 [portal/filechooser/snap.firefox]
-last-folder-path='HOME_PLACEHOLDER/appubaderecho-front-/app/acceso'
+last-folder-path='HOME_PLACEHOLDER/Downloads'
 
 [power-manager]
 info-history-type='charge'
 info-stats-type='discharge-accuracy'
 
 [settings-daemon/plugins/color]
-night-light-enabled=false
+night-light-enabled=true
 night-light-schedule-automatic=false
 night-light-schedule-from=6.0
 night-light-temperature=uint32 4546
 
 [settings-daemon/plugins/media-keys]
-custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/']
 
 [settings-daemon/plugins/media-keys/custom-keybindings/custom0]
 binding='<Control><Alt>k'
 command='HOME_PLACEHOLDER/.local/bin/kitty'
 name='Kitty'
 
+[settings-daemon/plugins/media-keys/custom-keybindings/custom1]
+binding='<Control><Alt>s'
+command='spotify'
+name='Spotify'
+
+[settings-daemon/plugins/media-keys/custom-keybindings/custom2]
+binding='<Control><Alt>g'
+command='google-chrome'
+name='Chrome FIUBA'
+
 [settings-daemon/plugins/power]
 sleep-inactive-ac-timeout=3600
 sleep-inactive-ac-type='suspend'
 
 [shell]
-app-picker-layout=[{'snap-store_snap-store.desktop': <{'position': <0>}>, 'org.gnome.Settings.desktop': <{'position': <1>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <2>}>, 'org.gnome.Terminal.desktop': <{'position': <3>}>, 'bruno.desktop': <{'position': <4>}>, 'postman_postman.desktop': <{'position': <5>}>, 'org.wireshark.Wireshark.desktop': <{'position': <6>}>, 'antigravity.desktop': <{'position': <7>}>, 'fr.handbrake.ghb.desktop': <{'position': <8>}>, 'Zoom.desktop': <{'position': <9>}>, '9962e3cb-fd74-48ca-9353-3f5b958738af': <{'position': <10>}>, 'software-properties-drivers.desktop': <{'position': <11>}>, 'org.gnome.clocks.desktop': <{'position': <12>}>, 'org.gnome.Calendar.desktop': <{'position': <13>}>, 'org.gnome.Snapshot.desktop': <{'position': <14>}>, 'org.gnome.Totem.desktop': <{'position': <15>}>, 'org.gnome.Calculator.desktop': <{'position': <16>}>, 'org.corectrl.corectrl.desktop': <{'position': <17>}>, 'simple-scan.desktop': <{'position': <18>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <19>}>, 'firefox_firefox.desktop': <{'position': <20>}>, 'Utilities': <{'position': <21>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <22>}>, 'yelp.desktop': <{'position': <23>}>}, {'org.gnome.eog.desktop': <{'position': <0>}>, 'gnome-language-selector.desktop': <{'position': <1>}>, 'org.gnome.PowerStats.desktop': <{'position': <2>}>, 'org.remmina.Remmina.desktop': <{'position': <3>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <4>}>, 'org.gnome.Shotwell.desktop': <{'position': <5>}>, 'software-properties-gtk.desktop': <{'position': <6>}>, 'update-manager.desktop': <{'position': <7>}>, 'gnome-session-properties.desktop': <{'position': <8>}>, 'usb-creator-gtk.desktop': <{'position': <9>}>, 'org.gnome.TextEditor.desktop': <{'position': <10>}>, 'thunderbird_thunderbird.desktop': <{'position': <11>}>, 'transmission-gtk.desktop': <{'position': <12>}>, 'info.desktop': <{'position': <13>}>}]
+app-picker-layout=[{'snap-store_snap-store.desktop': <{'position': <0>}>, 'org.gnome.Settings.desktop': <{'position': <1>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <2>}>, 'org.gnome.Terminal.desktop': <{'position': <3>}>, 'bruno.desktop': <{'position': <4>}>, 'postman_postman.desktop': <{'position': <5>}>, 'org.wireshark.Wireshark.desktop': <{'position': <6>}>, 'antigravity.desktop': <{'position': <7>}>, 'fr.handbrake.ghb.desktop': <{'position': <8>}>, 'Zoom.desktop': <{'position': <9>}>, '9962e3cb-fd74-48ca-9353-3f5b958738af': <{'position': <10>}>, 'software-properties-drivers.desktop': <{'position': <11>}>, 'org.gnome.clocks.desktop': <{'position': <12>}>, 'org.gnome.Calendar.desktop': <{'position': <13>}>, 'org.gnome.Snapshot.desktop': <{'position': <14>}>, 'org.gnome.Totem.desktop': <{'position': <15>}>, 'org.gnome.Calculator.desktop': <{'position': <16>}>, 'org.corectrl.corectrl.desktop': <{'position': <17>}>, 'simple-scan.desktop': <{'position': <18>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <19>}>, 'firefox_firefox.desktop': <{'position': <20>}>, 'Utilities': <{'position': <21>}>, 'firmware-updater_firmware-updater.desktop': <{'position': <22>}>, 'yelp.desktop': <{'position': <23>}>}, {'org.gnome.eog.desktop': <{'position': <0>}>, 'gnome-language-selector.desktop': <{'position': <1>}>, 'org.gnome.PowerStats.desktop': <{'position': <2>}>, 'org.remmina.Remmina.desktop': <{'position': <3>}>, 'org.gnome.Rhythmbox3.desktop': <{'position': <4>}>, 'org.gnome.Shotwell.desktop': <{'position': <5>}>, 'software-properties-gtk.desktop': <{'position': <6>}>, 'update-manager.desktop': <{'position': <7>}>, 'gnome-session-properties.desktop': <{'position': <8>}>, 'usb-creator-gtk.desktop': <{'position': <9>}>, 'org.gnome.TextEditor.desktop': <{'position': <10>}>, 'thunderbird_thunderbird.desktop': <{'position': <11>}>, 'transmission-gtk.desktop': <{'position': <12>}>, 'info.desktop': <{'position': <13>}>, 'chrome-eilembjdkfgodjkcjnpgpaenohkicgjd-Default.desktop': <{'position': <14>}>, 'htop.desktop': <{'position': <15>}>, 'display-im6.q16.desktop': <{'position': <16>}>, 'kitty.desktop': <{'position': <17>}>}]
 disable-user-extensions=false
 disabled-extensions=['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com', 'lockscreen-extension@pratap.fastmail.fm', 'just-perfection-desktop@just-perfection', 'tilingshell@ferrarodomenico.com']
 enabled-extensions=['ding@rastersoft.com', 'tiling-assistant@ubuntu.com', 'dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx', 'clipboard-indicator@tudmotu.com', 'system-monitor-next@paradoxxx.zero.gmail.com']
@@ -389,7 +402,7 @@ dot-position='BOTTOM'
 dot-size=5
 dot-style-focused='DOTS'
 dot-style-unfocused='DOTS'
-extension-version=72
+extension-version=73
 focus-highlight-dominant=true
 focus-highlight-opacity=15
 global-border-radius=3
@@ -439,10 +452,10 @@ taskbar-locked=false
 trans-border-custom-color='rgba(255,255,255,0.0862745)'
 trans-border-use-custom-color=true
 trans-border-width=1
-trans-gradient-bottom-color='#a51d2d'
-trans-gradient-bottom-opacity=0.25
+trans-gradient-bottom-color='#0d1a90'
+trans-gradient-bottom-opacity=0.20000000000000001
 trans-gradient-top-color='#1a5fb4'
-trans-gradient-top-opacity=0.90000000000000002
+trans-gradient-top-opacity=1.0
 trans-use-border=true
 trans-use-custom-gradient=true
 trans-use-custom-opacity=false
@@ -487,7 +500,7 @@ backgrounds-folder-path='HOME_PLACEHOLDER/Downloads/fondos'
 hide-lockscreen-extension-button=false
 
 [shell/extensions/system-monitor-next-applet]
-background='#ffffff16'
+background='#c8c8c833'
 battery-batt0-color='#f2002e'
 battery-display=false
 battery-graph-width=100
@@ -548,7 +561,7 @@ gpu-position=6
 gpu-refresh-time=5000
 gpu-show-menu=false
 gpu-show-text=true
-gpu-style='graph'
+gpu-style='digit'
 gpu-used-color='#00b35b'
 icon-display=false
 left-display=false

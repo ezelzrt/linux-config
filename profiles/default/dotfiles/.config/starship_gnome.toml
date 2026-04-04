@@ -1,17 +1,17 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 # --- FORMATO PRINCIPAL ---
+# Usamos $fill para empujar el tiempo a la derecha, y LUEGO el $line_break
 format = """
-[](fg:bg_os)\
-$sudo\
+[░▒▓](fg:color_os)\
 $os\
 $username\
-[](bg:bg_dir fg:bg_os)\
+[](bg:color_dir fg:color_os)\
 $directory\
-[](fg:bg_dir bg:bg_git)\
+[](fg:color_dir bg:color_git)\
 $git_branch\
 $git_status\
-[](fg:bg_git bg:bg_langs)\
+[](fg:color_git bg:color_langs)\
 $c\
 $cpp\
 $rust\
@@ -22,54 +22,47 @@ $java\
 $kotlin\
 $haskell\
 $python\
-[](fg:bg_langs bg:bg_tools)\
+[](fg:color_langs bg:color_tools)\
 $docker_context\
 $conda\
 $pixi\
-[](fg:bg_tools)\
+[](fg:color_tools)\
 $fill\
-[](fg:bg_time)\
-$cmd_duration\
+[](fg:color_time)\
 $time\
-[](fg:bg_time)\
+[](fg:color_time)\
 $line_break$character"""
 
-palette = 'cool_blue_dark'
+palette = 'cool_blue'
 
-[palettes.cool_blue_dark]
-# --- COLORES DE TEXTO (Se mantienen brillantes para legibilidad) ---
+[palettes.cool_blue]
 color_fg_main = '#a3aed2'
 color_fg_dark = '#090c0c'
 color_fg_light = '#e3e5e5'
-color_text_dir = '#769ff0' # El azul original para resaltar los íconos de git/lenguajes
 
-# --- COLORES DE FONDO (Más oscuros/apagados para dar efecto transparente/vidrio oscuro) ---
-bg_os = '#7886a8'      # Periwinkle más grisáceo y oscuro
-bg_dir = '#45629e'     # Azul profundo apagado
-bg_git = '#282f45'     # Azul noche
-bg_langs = '#1b202e'   # Casi negro azulado
-bg_tools = '#131721'   # Se funde sutilmente con el fondo de la terminal
-bg_time = '#131721'
+color_os = '#a3aed2'
+color_dir = '#769ff0'
+color_git = '#394260'
+color_langs = '#212736'
+color_tools = '#1d2230'
+color_time = '#1d2230'
 
-# Colores de estado
 color_green = '#a3aed2'
 color_red = '#ff7b72'
 color_purple = '#d2a8ff'
 color_yellow = '#f2cc60'
 
-# --- MÓDULO DE RELLENO ---
+# --- MÓDULO DE RELLENO (El secreto para el reloj a la derecha) ---
 [fill]
-#symbol = '─'
-symbol = '━'
-# symbol = '═'
-# style = 'fg:bg_git'
-style = 'fg:bg_tools'
+symbol = ' '
 
-# --- MÓDULOS DE SISTEMA ---
+# --- MÓDULOS CON ESPACIADO EXTRA PARA KITTY ---
+# Fíjate que ahora hay dos espacios '[ $symbol' en lugar de uno.
+# Esto evita que Kitty corte la izquierda del ícono.
 
 [os]
 disabled = false
-style = "bg:bg_os fg:color_fg_dark"
+style = "bg:color_os fg:color_fg_dark"
 format = '[ $symbol ]($style)'
 
 [os.symbols]
@@ -98,12 +91,12 @@ Pop = ""
 
 [username]
 show_always = false
-style_user = "bg:bg_os fg:color_fg_dark"
-style_root = "bg:bg_os fg:color_fg_dark"
+style_user = "bg:color_os fg:color_fg_dark"
+style_root = "bg:color_os fg:color_fg_dark"
 format = '[ $user ]($style)'
 
 [directory]
-style = "fg:color_fg_light bg:bg_dir"
+style = "fg:color_fg_light bg:color_dir"
 format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "~/"
@@ -115,93 +108,82 @@ truncation_symbol = "~/"
 "Pictures" = " "
 "Developer" = "󰲋 "
 
-# --- GIT ---
-
 [git_branch]
 symbol = ""
-style = "fg:color_text_dir bg:bg_git"
+style = "fg:color_dir bg:color_git"
 format = '[ $symbol $branch ]($style)'
 
 [git_status]
-style = "fg:color_text_dir bg:bg_git"
+style = "fg:color_dir bg:color_git"
 format = '[$all_status$ahead_behind ]($style)'
-
-# --- LENGUAJES ---
 
 [nodejs]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [c]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [cpp]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [rust]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [golang]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [php]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [java]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [kotlin]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [haskell]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
 
 [python]
 symbol = ""
-style = "fg:color_text_dir bg:bg_langs"
+style = "fg:color_dir bg:color_langs"
 format = '[ $symbol ($version) ]($style)'
-
-# --- HERRAMIENTAS ---
 
 [docker_context]
 symbol = ""
-style = "fg:color_fg_main bg:bg_tools"
+style = "fg:color_fg_main bg:color_tools"
 format = '[ $symbol ($context) ]($style)'
 
 [conda]
-style = "fg:color_fg_main bg:bg_tools"
+style = "fg:color_fg_main bg:color_tools"
 format = '[ $symbol ($environment) ]($style)'
 
 [pixi]
-style = "fg:color_fg_main bg:bg_tools"
+style = "fg:color_fg_main bg:color_tools"
 format = '[ $symbol ($version) ($environment) ]($style)'
-
-[cmd_duration]
-min_time = 2000 # Solo aparece si el comando tardó más de 2 segundos (2000ms)
-style = "fg:color_yellow bg:bg_time"
-format = '[ 󰔛 $duration ]($style)'
 
 [time]
 disabled = false
 time_format = "%R"
-style = "fg:color_fg_main bg:bg_time"
+style = "fg:color_fg_main bg:color_time"
 format = '[  $time ]($style)'
 
 [line_break]
@@ -215,12 +197,3 @@ vimcmd_symbol = '[](bold fg:color_green)'
 vimcmd_replace_one_symbol = '[](bold fg:color_purple)'
 vimcmd_replace_symbol = '[](bold fg:color_purple)'
 vimcmd_visual_symbol = '[](bold fg:color_yellow)'
-
-[sudo]
-# symbol = '🥸'
-symbol = '🟊'
-# symbol = '🦖'
-# symbol = '🨀'
-disabled = false
-style = "bg:bg_os fg:color_fg_dark"
-format = '[$symbol]($style)'
