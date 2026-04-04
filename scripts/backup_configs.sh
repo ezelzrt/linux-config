@@ -186,6 +186,7 @@ backup_dotfiles() {
   copy_if_exists "$HOME/.bashrc"   "$dotfiles_dir/.bashrc"
   copy_if_exists "$HOME/.profile"  "$dotfiles_dir/.profile"
   copy_if_exists "$HOME/.config/starship.toml" "$dotconfig_dir/starship.toml"
+  copy_if_exists "$HOME/.config/starship_gnome.toml" "$dotconfig_dir/starship_gnome.toml"
   copy_dir_if_exists "$HOME/.config/kitty" "$dotconfig_dir/kitty"
   copy_if_exists "$HOME/.config/xdg-terminals.list" "$dotconfig_dir/xdg-terminals.list"
   copy_dir_if_exists "$HOME/.zsh_funcs" "$dotfiles_dir/.zsh_funcs"

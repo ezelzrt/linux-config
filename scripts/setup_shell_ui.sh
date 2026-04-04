@@ -347,8 +347,9 @@ apply_terminal_prompt_config() {
     return
   fi
 
-  local starship_src legacy_p10k_src
+  local starship_src starship_gnome_src legacy_p10k_src
   starship_src="$(resolve_profile_file "$profile_dir" "dotfiles/.config/starship.toml")"
+  starship_gnome_src="$(resolve_profile_file "$profile_dir" "dotfiles/.config/starship_gnome.toml")"
   legacy_p10k_src="$(resolve_profile_file "$profile_dir" "dotfiles/.p10k.zsh")"
 
   if ! is_starship_installed; then
@@ -358,6 +359,12 @@ apply_terminal_prompt_config() {
 
   if [[ -n "$starship_src" ]]; then
     copy_dotfile "$starship_src" "$HOME/.config/starship.toml"
+
+    if [[ -n "$starship_gnome_src" ]]; then
+      copy_dotfile "$starship_gnome_src" "$HOME/.config/starship_gnome.toml"
+    else
+      log_warn "No se encontró dotfiles/.config/starship_gnome.toml en el perfil ni fallback default."
+    fi
 
     if is_zsh_installed; then
       migrate_zshrc_for_starship

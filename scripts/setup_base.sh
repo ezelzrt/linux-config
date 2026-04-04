@@ -64,6 +64,7 @@ install_apt_packages() {
     gnome-tweaks
     gnome-shell-extension-manager
     dconf-cli
+    fonts-jetbrains-mono
   )
 
   log_info "Paquetes a instalar:"
@@ -193,6 +194,36 @@ install_yazi() {
 
   rm -rf "$tmp_dir"
   log_ok "Yazi instalado en /usr/local/bin (yazi, ya)."
+}
+
+install_nerd_fonts_symbols() {
+  log_section "Nerd Fonts Symbols"
+  if ! ask_yes_no "¿Instalar fallback Symbols Nerd Font para Kitty?" "Y"; then
+    return
+  fi
+
+  if fc-list | grep -qi "Symbols Nerd Font"; then
+    log_skip "Symbols Nerd Font"
+    return
+  fi
+
+  local tmp_dir archive_path fonts_dir
+  tmp_dir="$(mktemp -d)"
+  archive_path="$tmp_dir/NerdFontsSymbolsOnly.zip"
+  fonts_dir="$HOME/.local/share/fonts"
+
+  log_info "Descargando NerdFontsSymbolsOnly.zip..."
+  curl -fL "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip" -o "$archive_path"
+
+  mkdir -p "$fonts_dir"
+  log_info "Extrayendo SymbolsNerdFont-Regular.ttf..."
+  unzip -j "$archive_path" '*SymbolsNerdFont-Regular.ttf' -d "$fonts_dir"
+
+  log_info "Actualizando caché de fuentes..."
+  fc-cache -fv >/dev/null
+
+  rm -rf "$tmp_dir"
+  log_ok "Symbols Nerd Font instalado en ~/.local/share/fonts"
 }
 
 install_rustup() {
@@ -534,6 +565,7 @@ main() {
   install_apt_packages
   install_kitty
   install_yazi
+  install_nerd_fonts_symbols
   install_rustup
   install_docker
   install_nvm_node
