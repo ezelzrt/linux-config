@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+USER_PLACEHOLDER="NOMBRE_USUARIO_PLACEHOLDER"
 
 # ── Colores ────────────────────────────────────────────────────────────────────
 C_RESET='\033[0m'
@@ -19,6 +20,69 @@ log_skip()    { echo -e "  ${C_DIM}↷  No encontrado: $1${C_RESET}"; }
 log_info()    { echo -e "  ${C_BLUE}→${C_RESET}  $1"; }
 log_warn()    { echo -e "  ${C_YELLOW}⚠${C_RESET}  $1"; }
 log_error()   { echo -e "  ${C_RED}✖${C_RESET}  $1"; }
+
+sanitize_username_placeholders_in_file() {
+  local file="$1"
+  [[ -f "$file" ]] || return
+
+  if grep -Iq . "$file"; then
+    BACKUP_USER="$USER" USER_PLACEHOLDER="$USER_PLACEHOLDER" perl -i -pe \
+      's/(?<![A-Za-z0-9_])\Q$ENV{BACKUP_USER}\E(?![A-Za-z0-9_])/$ENV{USER_PLACEHOLDER}/g' "$file"
+  fi
+}
+
+sanitize_username_placeholders_in_dir() {
+  local dir="$1"
+  [[ -d "$dir" ]] || return
+
+  while IFS= read -r -d '' file; do
+    sanitize_username_placeholders_in_file "$file"
+  done < <(find "$dir" -type f -print0)
+}
+
+remove_dconf_sections() {
+  local file="$1"
+  local section_regex="$2"
+  local tmp
+  tmp="$(mktemp)"
+
+  awk -v section_regex="$section_regex" '
+    /^\[[^]]+\]$/ {
+      section=$0
+      gsub(/^\[/, "", section)
+      gsub(/\]$/, "", section)
+      skip=(section ~ section_regex)
+    }
+    !skip { print }
+  ' "$file" > "$tmp"
+
+  mv "$tmp" "$file"
+}
+
+sanitize_dconf_gsconnect() {
+  local file="$1"
+  local mode="${2:-settings}"
+  [[ -f "$file" ]] || return
+
+  if [[ "$mode" == "extensions" ]]; then
+    remove_dconf_sections "$file" '^gsconnect($|/)'
+    return
+  fi
+
+  remove_dconf_sections "$file" '^shell/extensions/gsconnect($|/)|^desktop/notifications/application/org-gnome-shell-extensions-gsconnect$|^desktop/notifications/application/org-kde-kdeconnect-daemon$'
+
+  sed -i \
+    -e "s/, 'gsconnect@andyholmes.github.io'//g" \
+    -e "s/'gsconnect@andyholmes.github.io', //g" \
+    -e "s/'gsconnect@andyholmes.github.io'//g" \
+    -e "s/, 'org-kde-kdeconnect-daemon'//g" \
+    -e "s/'org-kde-kdeconnect-daemon', //g" \
+    -e "s/'org-kde-kdeconnect-daemon'//g" \
+    -e "s/, 'org-gnome-shell-extensions-gsconnect'//g" \
+    -e "s/'org-gnome-shell-extensions-gsconnect', //g" \
+    -e "s/'org-gnome-shell-extensions-gsconnect'//g" \
+    "$file"
+}
 
 ask_yes_no() {
   local prompt="$1"
@@ -190,6 +254,15 @@ backup_dotfiles() {
   copy_dir_if_exists "$HOME/.config/kitty" "$dotconfig_dir/kitty"
   copy_if_exists "$HOME/.config/xdg-terminals.list" "$dotconfig_dir/xdg-terminals.list"
   copy_dir_if_exists "$HOME/.zsh_funcs" "$dotfiles_dir/.zsh_funcs"
+
+  sanitize_username_placeholders_in_file "$dotfiles_dir/.zshrc"
+  sanitize_username_placeholders_in_file "$dotfiles_dir/.bashrc"
+  sanitize_username_placeholders_in_file "$dotfiles_dir/.profile"
+  sanitize_username_placeholders_in_file "$dotconfig_dir/starship.toml"
+  sanitize_username_placeholders_in_file "$dotconfig_dir/starship_gnome.toml"
+  sanitize_username_placeholders_in_file "$dotconfig_dir/xdg-terminals.list"
+  sanitize_username_placeholders_in_dir "$dotfiles_dir/.zsh_funcs"
+  sanitize_username_placeholders_in_dir "$dotconfig_dir/kitty"
 }
 
 backup_dconf() {
@@ -220,11 +293,19 @@ backup_dconf() {
   dconf dump /org/gnome/ \
     | sed "${sed_args[@]}" \
     > "$dconf_dir/gnome-settings.dconf"
+
+  sanitize_username_placeholders_in_file "$dconf_dir/gnome-settings.dconf"
+  sanitize_dconf_gsconnect "$dconf_dir/gnome-settings.dconf" "settings"
+
   log_ok "Guardado: profiles/$profile_name/dconf/gnome-settings.dconf"
 
   dconf dump /org/gnome/shell/extensions/ \
     | sed "${sed_args[@]}" \
     > "$dconf_dir/gnome-extensions.dconf"
+
+  sanitize_username_placeholders_in_file "$dconf_dir/gnome-extensions.dconf"
+  sanitize_dconf_gsconnect "$dconf_dir/gnome-extensions.dconf" "extensions"
+
   log_ok "Guardado: profiles/$profile_name/dconf/gnome-extensions.dconf"
 
   # ── Copiar wallpapers referenciados en el dconf ────────────────────────────

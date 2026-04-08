@@ -22,10 +22,10 @@ target-currency=''
 target-units='radian'
 window-maximized=false
 window-size=(680, 670)
-word-size=8
+word-size=64
 
 [control-center]
-last-panel='keyboard'
+last-panel='display'
 window-state=(892, 640, false)
 
 [deja-dup]
@@ -191,6 +191,8 @@ window-width=600
 current-tab='processes'
 show-dependencies=false
 show-whose-processes='user'
+window-height=555
+window-width=1056
 
 [gnome-system-monitor/disktreenew]
 col-6-visible=true
@@ -199,12 +201,26 @@ columns-order=[5]
 sort-col=1
 sort-order=0
 
+[gnome-system-monitor/proctree]
+columns-order=[0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+sort-col=8
+sort-order=0
+
 [mutter]
 edge-tiling=false
+experimental-features=@as []
 
 [mutter/keybindings]
 toggle-tiled-left=@as []
 toggle-tiled-right=@as []
+
+[nautilus/icon-view]
+default-zoom-level='small'
+
+[nautilus/list-view]
+default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'date_modified', 'date_accessed', 'date_created', 'recency', 'detailed_type']
+default-visible-columns=['name', 'size', 'date_modified']
+default-zoom-level='medium'
 
 [nautilus/preferences]
 default-folder-viewer='icon-view'
@@ -212,7 +228,8 @@ migrated-gtk-settings=true
 search-filter-time-type='last_modified'
 
 [nautilus/window-state]
-initial-size=(890, 550)
+initial-size=(889, 522)
+maximized=false
 
 [nm-applet/eap/b5562512-1e75-3e1e-a2b0-8826396a83f6]
 ignore-ca-cert=false
@@ -223,7 +240,7 @@ ignore-ca-cert=false
 ignore-phase2-ca-cert=false
 
 [portal/filechooser/com.google.Chrome]
-last-folder-path='HOME_PLACEHOLDER/Desktop/linux-config'
+last-folder-path='HOME_PLACEHOLDER/Downloads'
 
 [portal/filechooser/org.gnome.Settings]
 last-folder-path='HOME_PLACEHOLDER/Downloads/drive-download-20260131T195415Z-3-001'
@@ -231,12 +248,15 @@ last-folder-path='HOME_PLACEHOLDER/Downloads/drive-download-20260131T195415Z-3-0
 [portal/filechooser/snap.firefox]
 last-folder-path='HOME_PLACEHOLDER/Downloads'
 
+[portal/filechooser/virtualbox]
+last-folder-path='HOME_PLACEHOLDER/tallerseg/metasploitable-linux-2.0.0/Metasploitable2-Linux'
+
 [power-manager]
 info-history-type='charge'
 info-stats-type='discharge-accuracy'
 
 [settings-daemon/plugins/color]
-night-light-enabled=true
+night-light-enabled=false
 night-light-schedule-automatic=false
 night-light-schedule-from=6.0
 night-light-temperature=uint32 4546
@@ -418,15 +438,18 @@ isolate-workspaces=true
 leftbox-padding=-1
 leftbox-size=0
 middle-click-action='LAUNCH'
+multi-monitors=true
 overview-click-to-exit=false
-panel-anchors='{"DEL-CY7NKY2":"MIDDLE"}'
-panel-element-positions='{"DEL-CY7NKY2":[{"element":"activitiesButton","visible":true,"position":"stackedTL"},{"element":"showAppsButton","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"centerMonitor"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
-panel-lengths='{"DEL-CY7NKY2":100}'
-panel-positions='{"DEL-CY7NKY2":"TOP"}'
-panel-sizes='{"DEL-CY7NKY2":44}'
+panel-anchors='{"DEL-CY7NKY2":"MIDDLE","XXX-0x00001000":"MIDDLE"}'
+panel-element-positions='{"DEL-CY7NKY2":[{"element":"activitiesButton","visible":true,"position":"stackedTL"},{"element":"showAppsButton","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"centerMonitor"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}],"XXX-0x00001000":[{"element":"activitiesButton","visible":false,"position":"stackedTL"},{"element":"showAppsButton","visible":true,"position":"stackedTL"},{"element":"leftBox","visible":true,"position":"stackedTL"},{"element":"taskbar","visible":true,"position":"stackedTL"},{"element":"centerBox","visible":true,"position":"stackedBR"},{"element":"rightBox","visible":true,"position":"stackedBR"},{"element":"dateMenu","visible":true,"position":"stackedBR"},{"element":"systemMenu","visible":true,"position":"stackedBR"},{"element":"desktopButton","visible":true,"position":"stackedBR"}]}'
+panel-element-positions-monitors-sync=false
+panel-lengths='{"DEL-CY7NKY2":100,"XXX-0x00001000":-1}'
+panel-positions='{"DEL-CY7NKY2":"TOP","XXX-0x00001000":"BOTTOM"}'
+panel-sizes='{"DEL-CY7NKY2":44,"XXX-0x00001000":64}'
 panel-top-bottom-margins=0
-panel-top-bottom-padding=4
+panel-top-bottom-padding=3
 prefs-opened=false
+primary-monitor='DEL-CY7NKY2'
 scroll-icon-delay=100
 scroll-panel-action='SWITCH_WORKSPACE'
 scroll-panel-delay=100
@@ -434,7 +457,7 @@ shift-click-action='MINIMIZE'
 shift-middle-click-action='LAUNCH'
 shortcut-num-keys='NUM_KEYPAD'
 show-apps-icon-file='HOME_PLACEHOLDER/Pictures/Boca_escudo.png'
-show-apps-icon-side-padding=10
+show-apps-icon-side-padding=11
 show-apps-override-escape=true
 show-favorites=true
 show-favorites-all-monitors=true

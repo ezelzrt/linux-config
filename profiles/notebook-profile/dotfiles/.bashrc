@@ -121,7 +121,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Created by `pipx` on 2025-11-07 15:44:57
-export PATH="$PATH:/home/eze/.local/bin"
+export PATH="$PATH:/home/NOMBRE_USUARIO_PLACEHOLDER/.local/bin"
 
 # Android SDK
 export ANDROID_HOME=$HOME/Android/Sdk
@@ -136,4 +136,4 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export PATH=$PATH:$JAVA_HOME/bin
 
 # opencode
-export PATH=/home/eze/.opencode/bin:$PATH
+export PATH=/home/NOMBRE_USUARIO_PLACEHOLDER/.opencode/bin:$PATH

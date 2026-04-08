@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+USER_PLACEHOLDER="NOMBRE_USUARIO_PLACEHOLDER"
 
 # ── Colores ────────────────────────────────────────────────────────────────────
 C_RESET='\033[0m'
@@ -20,6 +21,24 @@ log_skip()    { echo -e "  ${C_DIM}↷  $1 (ya instalado)${C_RESET}"; }
 log_info()    { echo -e "  ${C_BLUE}→${C_RESET}  $1"; }
 log_warn()    { echo -e "  ${C_YELLOW}⚠${C_RESET}  $1"; }
 log_error()   { echo -e "  ${C_RED}✖${C_RESET}  $1"; }
+
+restore_username_placeholders_in_file() {
+  local file="$1"
+  [[ -f "$file" ]] || return
+
+  if grep -Iq . "$file"; then
+    sed -i "s|$USER_PLACEHOLDER|$USER|g" "$file"
+  fi
+}
+
+restore_username_placeholders_in_dir() {
+  local dir="$1"
+  [[ -d "$dir" ]] || return
+
+  while IFS= read -r -d '' file; do
+    restore_username_placeholders_in_file "$file"
+  done < <(find "$dir" -type f -print0)
+}
 
 ask_yes_no() {
   local prompt="$1"
@@ -71,6 +90,7 @@ copy_dotfile() {
 
   backup_if_needed "$target"
   cp "$source" "$target"
+  restore_username_placeholders_in_file "$target"
   log_ok "Copiado: ${C_DIM}$(basename "$source")${C_RESET} → ${C_DIM}$target${C_RESET}"
 }
 
@@ -99,6 +119,7 @@ copy_dotdir() {
   fi
 
   cp -a "$source" "$target"
+  restore_username_placeholders_in_dir "$target"
   log_ok "Copiado dir: ${C_DIM}$(basename "$source")${C_RESET} → ${C_DIM}$target${C_RESET}"
 }
 
@@ -458,6 +479,7 @@ apply_gnome_base_config() {
   copy_profile_images "$profile_dir"
 
   sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
+      -e "s|$USER_PLACEHOLDER|$USER|g" \
       -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
       -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
       "$gnome_file" | dconf load /org/gnome/
@@ -500,6 +522,7 @@ apply_gnome_extensions_config() {
   [[ -n "$monitor_id" ]] || monitor_id="MONITOR_PLACEHOLDER"
 
   sed -e "s|HOME_PLACEHOLDER|$HOME|g" \
+      -e "s|$USER_PLACEHOLDER|$USER|g" \
       -e "s|MONITOR_PLACEHOLDER|$monitor_id|g" \
       -e "s|CONNECTOR_PLACEHOLDER|$monitor_id|g" \
       "$ext_file" | dconf load /org/gnome/shell/extensions/
