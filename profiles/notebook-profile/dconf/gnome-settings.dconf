@@ -19,12 +19,12 @@ window-size=(360, 503)
 word-size=64
 
 [control-center]
-last-panel='background'
+last-panel='keyboard'
 window-state=(980, 640, false)
 
 [deja-dup]
 backend='google'
-prompt-check='2026-03-02T14:58:08.446202Z'
+prompt-check='2026-04-08T20:20:10.574631Z'
 
 [desktop/app-folders]
 folder-children=['Utilities', 'YaST', 'Pardus']
@@ -66,7 +66,7 @@ icon-theme='Yaru-purple'
 show-battery-percentage=true
 
 [desktop/notifications]
-application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup', 'code-code']
+application-children=['google-chrome', 'discord-discord', 'spotify-spotify', 'gnome-power-panel', 'org-gnome-settings', 'antigravity', 'org-gnome-totem', 'org-gnome-nautilus', 'org-gnome-eog', 'zoom', 'org-gnome-dejadup', 'code-code', 'com-mattjakeman-extensionmanager', 'org-gnome-evince']
 show-banners=true
 
 [desktop/notifications/application/antigravity]
@@ -74,6 +74,9 @@ application-id='antigravity.desktop'
 
 [desktop/notifications/application/code-code]
 application-id='code_code.desktop'
+
+[desktop/notifications/application/com-mattjakeman-extensionmanager]
+application-id='com.mattjakeman.ExtensionManager.desktop'
 
 [desktop/notifications/application/discord-discord]
 application-id='discord_discord.desktop'
@@ -89,6 +92,9 @@ application-id='org.gnome.DejaDup.desktop'
 
 [desktop/notifications/application/org-gnome-eog]
 application-id='org.gnome.eog.desktop'
+
+[desktop/notifications/application/org-gnome-evince]
+application-id='org.gnome.Evince.desktop'
 
 [desktop/notifications/application/org-gnome-nautilus]
 application-id='org.gnome.Nautilus.desktop'
@@ -106,7 +112,10 @@ application-id='spotify_spotify.desktop'
 application-id='Zoom.desktop'
 
 [desktop/peripherals/keyboard]
-numlock-state=true
+numlock-state=false
+
+[desktop/peripherals/mouse]
+speed=1.0
 
 [desktop/peripherals/touchpad]
 send-events='enabled'
@@ -139,7 +148,7 @@ sidebar=false
 [evince/default]
 continuous=true
 dual-page=false
-dual-page-odd-left=false
+dual-page-odd-left=true
 enable-spellchecking=true
 fullscreen=false
 inverted-colors=false
@@ -147,7 +156,7 @@ show-sidebar=true
 sidebar-page='thumbnails'
 sidebar-size=182
 sizing-mode='automatic'
-window-ratio=(0.99344262295081964, 1.0714285714285714)
+window-ratio=(0.99327731092436977, 1.0712589073634204)
 
 [evolution-data-server]
 migrated=true
@@ -194,7 +203,7 @@ migrated-gtk-settings=true
 search-filter-time-type='last_modified'
 
 [nautilus/window-state]
-initial-size=(890, 550)
+initial-size=(890, 553)
 maximized=false
 
 [portal/filechooser/com.google.Chrome]
@@ -232,13 +241,18 @@ initial-stations-loaded=true
 locations=['file://HOME_PLACEHOLDER/Music']
 
 [settings-daemon/plugins/color]
-night-light-enabled=true
+night-light-enabled=false
 night-light-schedule-automatic=false
 night-light-schedule-from=6.0
 night-light-temperature=uint32 4546
 
 [settings-daemon/plugins/media-keys]
-custom-keybindings=@as []
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+
+[settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Control><Alt>k'
+command='HOME_PLACEHOLDER/.local/bin/kitty'
+name='Kitty'
 
 [settings-daemon/plugins/power]
 sleep-inactive-ac-timeout=3600
@@ -250,7 +264,7 @@ app-picker-layout=[{'software-properties-drivers.desktop': <{'position': <0>}>, 
 disable-user-extensions=false
 disabled-extensions=['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com', 'just-perfection-desktop@just-perfection', 'lockscreen-extension@pratap.fastmail.fm']
 enabled-extensions=['ding@rastersoft.com', 'tiling-assistant@ubuntu.com', 'dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx', 'clipboard-indicator@tudmotu.com', 'Battery-Health-Charging@maniacx.github.com', 'mediacontrols@cliffniff.github.com', 'lockkeys@vaina.lt', 'system-monitor-next@paradoxxx.zero.gmail.com']
-favorite-apps=['org.gnome.Nautilus.desktop', 'discord_discord.desktop', 'code_code.desktop', 'google-chrome.desktop', 'spotify_spotify.desktop']
+favorite-apps=['org.gnome.Nautilus.desktop', 'discord_discord.desktop', 'chrome-hnpfjngllnobngcgfapefoaidbinmjnm-Profile_1.desktop', 'code_code.desktop', 'google-chrome.desktop', 'spotify_spotify.desktop']
 last-selected-power-profile='power-saver'
 welcome-dialog-last-shown-version='46.0'
 
@@ -265,7 +279,7 @@ dummy-default-threshold=false
 icon-style-type=2
 indicator-position=0
 indicator-position-index=0
-indicator-position-max=3
+indicator-position-max=2
 polkit-status='installed'
 show-battery-panel2=false
 show-preferences=true
@@ -401,7 +415,7 @@ dot-position='BOTTOM'
 dot-size=5
 dot-style-focused='DOTS'
 dot-style-unfocused='DOTS'
-extension-version=72
+extension-version=73
 focus-highlight-dominant=true
 focus-highlight-opacity=15
 global-border-radius=3

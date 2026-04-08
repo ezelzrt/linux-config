@@ -1,0 +1,31 @@
+# --- FUENTES ---
+# Asegúrate de tener una Nerd Font instalada en tu sistema (ej: FiraCode Nerd Font)
+font_family      MesloLGS NF
+bold_font        auto
+italic_font      auto
+bold_italic_font auto
+font_size        12.0
+
+# --- APARIENCIA ---
+background_opacity 0.95
+# En Ubuntu (Wayland), ocultar las decoraciones a veces quita la capacidad de arrastrar 
+# la ventana con el mouse fácilmente. Ponlo en 'yes' si prefieres usar la tecla Super (Windows) + click para arrastrar.
+hide_window_decorations no 
+
+# --- TAMAÑO INICIAL ---
+remember_window_size  no
+initial_window_width  80c
+initial_window_height 25c
+
+# --- BORDES ---
+window_border_width 1.5pt
+# active_border_color #00ff00
+# inactive_border_color #444444
+# Margen entre el borde y el texto
+window_padding_width 4
+
+
+# BEGIN_KITTY_THEME
+# Challenger Deep
+include current-theme.conf
+# END_KITTY_THEME

@@ -1,3 +1,4 @@
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
@@ -38,7 +39,7 @@ ZSH_THEME=""
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -77,6 +78,7 @@ plugins=(
 	docker-compose
 	zsh-autosuggestions
 	zsh-syntax-highlighting
+	command-not-found
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -110,10 +112,6 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Inicializar Starship
-eval "$(starship init zsh)"
-
-
 # --- 1. Inicialización de Node Version Manager (NVM) ---
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -124,3 +122,26 @@ export PATH="$PATH:$HOME/.local/bin"
 
 # --- 3. Ruta para OpenCode ---
 export PATH="$HOME/.opencode/bin:$PATH"
+
+# Ruta para GoLang
+export PATH="$PATH:/usr/local/go/bin"
+
+# Editor config
+export EDITOR=nano
+
+# Cargar functions
+source ~/.zsh_funcs/.funcs.zsh
+
+
+# Imprimir info del sistema al iniciar
+# fastfetch
+
+# --- CARGA CONDICIONAL DE STARSHIP SEGÚN LA TERMINAL ---
+if [[ "$TERM" == "xterm-kitty" ]]; then
+    export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+else
+    export STARSHIP_CONFIG="$HOME/.config/starship_gnome.toml"
+fi
+
+# Inicializar Starship
+eval "$(starship init zsh)"
